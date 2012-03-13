@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#include "ConfigParser.hpp"
+
 #define COMMANDCOUNT 5
 
 using namespace gloox;
@@ -21,7 +23,7 @@ namespace zabbix
 class CommandHandler
 {
 public:
-    CommandHandler( Client* _j );
+    CommandHandler( Client* _j, ConfigParser* _parser );
 
     void checkAuth( const Message& command );
 
@@ -48,6 +50,10 @@ private:
 
     int learnCommand( const Message& command );
 
+    void reportIssue( const Message& command );
+
+    void helpCommand( const Message& command );
+
     bool auth( const Message& command );
 
     std::string getFirst( std::string command );
@@ -57,6 +63,8 @@ private:
     mongo::DBClientConnection *c;
 
     Client *j;
+
+    ConfigParser *parser;
 
     std::string commands[COMMANDCOUNT];
 };

@@ -3,9 +3,10 @@
 namespace zabbix
 {
 
-CommandHandler::CommandHandler( Client* _j )
+CommandHandler::CommandHandler( Client* _j, ConfigParser* _parser )
 {
     j = _j;
+    parser = _parser;
     connectMongo();
     initCommandArr();
 }
@@ -13,7 +14,7 @@ CommandHandler::CommandHandler( Client* _j )
 void CommandHandler::connectMongo()
 {
     c = new mongo::DBClientConnection( true,0 ,0 );
-    c->connect( "localhost:27017" );
+    c->connect( parser->getMongoHost() );
 
 }
 
@@ -61,13 +62,13 @@ void CommandHandler::validateCommand( const Message& command )
             //!report
             case 3:
             {
-                std::cout << "report" << std::endl;
+                reportIssue( command );
                 break;
             }
             //!help
             case 4:
             {
-                std::cout << "help" << std::endl;
+                helpCommand( command );
                 break;
             }
             default:
@@ -189,7 +190,7 @@ int CommandHandler::validateExecute( const Message& command )
 
 std::string CommandHandler::executeScript( std::string script )
 {
-    std::string myScriptFolder = "/home/roa/programming/zabbix/notifier/zabbix_xmpp/script/";
+    std::string myScriptFolder = parser->getScriptDir();
     myScriptFolder.append( script.c_str() );
     FILE* pipe = popen( myScriptFolder.c_str(), "r" );
     if ( !pipe ) return "ERROR";
@@ -252,6 +253,67 @@ int CommandHandler::learnCommand( const Message& command )
     Message msg( type,  command.from(), info );
     j->send( msg );
     return 0;
+}
+
+void CommandHandler::reportIssue( const Message& command )
+{
+    std::cout << "report" << std::endl;
+}
+
+void CommandHandler::helpCommand( const Message& command )
+{
+    Message::MessageType type;
+    std::string help = "\n";
+    bool extendedHelp = false;
+    switch( searchCommand( commands, COMMANDCOUNT, getAppendix( command.body() ).c_str() ) )
+    {
+        case 0:
+        {
+            help.append( "!show shows you all avaiable commands i understand" );
+            help.append( "\n!show takes no arguments" );
+            break;
+        }
+        case 1:
+        {
+            help.append( "!execute executes a shell command or script i learned" );
+            help.append( "\nthe first argument of !execute is the command i execute" );
+            help.append( "\nto show all avaiable commands type !show" );
+            break;
+        }
+        case 2:
+        {
+            help.append( "\n!learn tells me, which new command i have to learn" );
+            help.append( "\nyou have to format the !learn command this way:" );
+            help.append( "\n!learn type name command" );
+            help.append( "\ntype can be shell or script\nif you choose script, the script has to be in the scriptdir" );
+            help.append( "\nname is a freely choosen name. with this name you can execute learned commands" );
+            help.append( "\ncommand is the actual executed shell command or scriptname" );
+            break;
+        }
+        case 3:
+        {
+            help.append( "\n!report is not for interactive usage\nplease dont use it" );
+            break;
+        }
+        case 4:
+        {
+            help.append( "\n!help shows this help\nfirst argument can be a command i know\n" );
+            extendedHelp = true;
+            break;
+        }
+        default:
+        {
+            help.append( "\ni did not understand your question\n" );
+            help.append( "\n!help shows this help\nfirst argument can be a command i know\n" );
+            extendedHelp = true;
+        }
+    }
+    if( extendedHelp )
+    {
+        help.append( createHelpStr().c_str() );
+    }
+    Message msg( type,  command.from(), help );
+    j->send( msg );
 }
 
 bool CommandHandler::auth( const Message& command )

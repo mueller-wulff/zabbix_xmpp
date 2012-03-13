@@ -23,6 +23,9 @@ class CommandHandler
 public:
     CommandHandler( Client* _j );
 
+    void checkAuth( const Message& command );
+
+private:
     void connectMongo();
 
     int searchCommand( std::string A[], int size, std::string target );
@@ -43,12 +46,14 @@ public:
 
     std::string executeShell( std::string shell );
 
+    void learnCommand( const Message& command );
+
+    bool auth( const Message& command );
+
     std::string getCommand( std::string command );
 
     std::string getAppendix( std::string appendix );
 
-
-private:
     mongo::DBClientConnection *c;
 
     Client *j;

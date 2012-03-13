@@ -55,7 +55,7 @@ void Bot::handleMessage( const Message& stanza, MessageSession* session )
 {
     if ( !stanza.body().empty() )
     {
-        comm->validateCommand( stanza );
+        comm->checkAuth( stanza );
     }
 }
 

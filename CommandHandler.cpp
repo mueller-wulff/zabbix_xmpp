@@ -17,6 +17,20 @@ void CommandHandler::connectMongo()
 
 }
 
+void CommandHandler::checkAuth( const Message& command )
+{
+    if( auth( command ) )
+    {
+        validateCommand( command );
+    }
+    else
+    {
+        Message::MessageType type;
+        std::string helpStr = "Your are not allowed to do this!";
+        Message msg( type,  command.from(), helpStr );
+        j->send( msg );
+    }
+}
 void CommandHandler::validateCommand( const Message& command )
 {
     std::string commandBody     = getCommand( command.body() );
@@ -41,7 +55,7 @@ void CommandHandler::validateCommand( const Message& command )
             //!learn
             case 2:
             {
-                std::cout << "learn" << std::endl;
+                learnCommand( command );
                 break;
             }
             //!report
@@ -187,6 +201,26 @@ std::string CommandHandler::executeShell( std::string shell )
     }
     pclose( pipe );
     return result;
+}
+
+void CommandHandler::learnCommand( const Message& command )
+{
+    std::cout << "authed" << std::endl;
+}
+
+bool CommandHandler::auth( const Message& command )
+{
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( "zabbix.admins", mongo::BSONObj() );
+    while( cursor->more() )
+    {
+        mongo::BSONObj currentAdmin = cursor->next();
+        std::string username = command.from().username();
+        if( username.compare( 0, username.length(), currentAdmin.getStringField("name")) == 0 )
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 std::string CommandHandler::getCommand( std::string command )

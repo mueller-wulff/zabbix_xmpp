@@ -11,7 +11,7 @@
 #include <iostream>
 #include <map>
 #include <string>
-#define COMMANDCOUNT 4
+#define COMMANDCOUNT 5
 
 using namespace gloox;
 
@@ -50,7 +50,7 @@ private:
 
     bool auth( const Message& command );
 
-    std::string getCommand( std::string command );
+    std::string getFirst( std::string command );
 
     std::string getAppendix( std::string appendix );
 

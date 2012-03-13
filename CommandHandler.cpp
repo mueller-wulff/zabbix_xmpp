@@ -33,7 +33,7 @@ void CommandHandler::checkAuth( const Message& command )
 }
 void CommandHandler::validateCommand( const Message& command )
 {
-    std::string commandBody     = getCommand( command.body() );
+    std::string commandBody     = getFirst( command.body() );
     std::string commandAppendix = getAppendix( command.body() );
 
     if ( commandBody.find_first_of( "!" ) == 0 )
@@ -62,6 +62,11 @@ void CommandHandler::validateCommand( const Message& command )
             case 3:
             {
                 std::cout << "report" << std::endl;
+                break;
+            }
+            case 4:
+            {
+                std::cout << "help" << std::endl;
                 break;
             }
             default:
@@ -96,6 +101,7 @@ void CommandHandler::initCommandArr()
     commands[1] = "!execute";
     commands[2] = "!learn";
     commands[3] = "!report";
+    commands[4] = "!help";
 }
 
 void CommandHandler::sendHelp( const Message& command )
@@ -205,7 +211,29 @@ std::string CommandHandler::executeShell( std::string shell )
 
 void CommandHandler::learnCommand( const Message& command )
 {
-    std::cout << "authed" << std::endl;
+    std::string commandType    = getFirst( getAppendix( command.body() ) );
+    std::string commandName    = getFirst( getAppendix( getAppendix( command.body() ) ) );
+    std::string commandCommand = getAppendix( getAppendix( getAppendix( command.body() ) ) );
+
+    mongo::BSONObjBuilder b;
+    b.genOID();
+    b.append( "command", commandCommand.c_str() );
+    b.append( "name", commandName.c_str() );
+    b.append( "type", commandType.c_str() );
+    mongo::BSONObj p = b.obj();
+    c->insert( "zabbix.commands", p );
+
+    std::string info;
+    info.append( "\nI learned the following:\nCommand-Name: ");
+    info.append( commandName.c_str() );
+    info.append( "\nCommand-Type: ");
+    info.append( commandType.c_str() );
+    info.append( "\nCommand actually executed: ");
+    info.append( commandCommand );
+
+    Message::MessageType type;
+    Message msg( type,  command.from(), info );
+    j->send( msg );
 }
 
 bool CommandHandler::auth( const Message& command )
@@ -223,7 +251,7 @@ bool CommandHandler::auth( const Message& command )
     return false;
 }
 
-std::string CommandHandler::getCommand( std::string command )
+std::string CommandHandler::getFirst( std::string command )
 {
     size_t found = command.find_first_of( " " );
     if (found < command.npos )

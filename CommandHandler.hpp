@@ -9,8 +9,8 @@
 
 #include "client/dbclient.h"
 #include <iostream>
-#include <map>
 #include <string>
+
 #define COMMANDCOUNT 5
 
 using namespace gloox;
@@ -40,13 +40,13 @@ private:
 
     void showCommands( const Message& command );
 
-    void validateExecute( const Message& command );
+    int validateExecute( const Message& command );
 
     std::string executeScript( std::string script );
 
     std::string executeShell( std::string shell );
 
-    void learnCommand( const Message& command );
+    int learnCommand( const Message& command );
 
     bool auth( const Message& command );
 
@@ -59,7 +59,6 @@ private:
     Client *j;
 
     std::string commands[COMMANDCOUNT];
-
 };
 
 }

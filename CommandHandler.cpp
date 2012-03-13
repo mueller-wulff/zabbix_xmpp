@@ -26,21 +26,25 @@ void CommandHandler::validateCommand( const Message& command )
     {
         switch( searchCommand( commands, COMMANDCOUNT, commandBody.c_str() ) )
         {
+            //!show
             case 0:
             {
                 showCommands( command );
                 break;
             }
+            //!execute
             case 1:
             {
-                std::cout << "execute" << std::endl;
+                validateExecute( command );
                 break;
             }
+            //!learn
             case 2:
             {
                 std::cout << "learn" << std::endl;
                 break;
             }
+            //!report
             case 3:
             {
                 std::cout << "report" << std::endl;
@@ -51,6 +55,10 @@ void CommandHandler::validateCommand( const Message& command )
                 sendHelp( command );
             }
         }
+    }
+    else
+    {
+        sendHelp( command );
     }
 }
 
@@ -106,12 +114,79 @@ void CommandHandler::showCommands( const Message& command )
     {
         mongo::BSONObj p = cursor->next();
         commandList.append( "\n" );
-        commandList.append( p.getStringField("test") );
+        commandList.append( p.getStringField("name") );
     }
 
     Message::MessageType type;
     Message msg( type,  command.from(), commandList.c_str() );
     j->send( msg );
+}
+
+void CommandHandler::validateExecute( const Message& command )
+{
+    bool executed = false;
+    std::string appendix = getAppendix( command.body() );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( "zabbix.commands", mongo::BSONObj() );
+    while( cursor->more() )
+    {
+        mongo::BSONObj p = cursor->next();
+        if ( appendix.compare( 0, appendix.length(), p.getStringField("name") ) == 0 )
+        {
+            Message::MessageType type;
+            std::string commandType = p.getStringField("type");
+            if(commandType.compare( 0, commandType.length(), "script" ) == 0 )
+            {
+                Message msg( type,  command.from(), executeScript( p.getStringField( ( "command" ) ) ) );
+                j->send( msg );
+                executed = true;
+            }
+            if(commandType.compare( 0, commandType.length(), "shell" ) == 0 )
+            {
+                Message msg( type,  command.from(), executeShell( p.getStringField( ( "command" ) ) ) );
+                j->send( msg );
+                executed = true;
+            }
+            break;
+        }
+    }
+    if( !executed )
+    {
+        Message::MessageType type;
+        Message msg( type,  command.from(), "Dont know what to execute!" );
+        j->send( msg );
+    }
+}
+
+std::string CommandHandler::executeScript( std::string script )
+{
+    std::string myScriptFolder = "/home/roa/programming/zabbix/notifier/zabbix_xmpp/script/";
+    myScriptFolder.append( script.c_str() );
+    FILE* pipe = popen( myScriptFolder.c_str(), "r" );
+    if (!pipe) return "ERROR";
+    char buffer[128];
+    std::string result = "";
+    while( !feof( pipe ) )
+    {
+        if( fgets( buffer, 128, pipe ) != NULL )
+            result += buffer;
+    }
+    pclose( pipe );
+    return result;
+}
+
+std::string CommandHandler::executeShell( std::string shell )
+{
+    FILE* pipe = popen( shell.c_str(), "r" );
+    if (!pipe) return "ERROR";
+    char buffer[128];
+    std::string result = "\n";
+    while( !feof( pipe ) )
+    {
+        if( fgets( buffer, 128, pipe ) != NULL )
+            result += buffer;
+    }
+    pclose( pipe );
+    return result;
 }
 
 std::string CommandHandler::getCommand( std::string command )

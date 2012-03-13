@@ -37,6 +37,12 @@ public:
 
     void showCommands( const Message& command );
 
+    void validateExecute( const Message& command );
+
+    std::string executeScript( std::string script );
+
+    std::string executeShell( std::string shell );
+
     std::string getCommand( std::string command );
 
     std::string getAppendix( std::string appendix );

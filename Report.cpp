@@ -35,15 +35,12 @@ void Report::sendReport( std::string report )
 
 bool Report::checkReport( std::string report )
 {
-    time_t deltatime;
+    time_t deltatime = 0;
     if ( report.find_first_of( "PROBLEM" ) < report.npos )
     {
         deltatime = analyzeReport( report );
     }
-    else
-    {
-        std::cout << "OK" << std::endl;
-    }
+
     if ( deltatime > 600 )
     {
         return true;
@@ -76,7 +73,7 @@ int Report::getTimestamp()
 time_t Report::storeReport( std::string report )
 {
     const std::string coll = "zabbix.reports";
-    time_t deltatime;
+    time_t deltatime = 0;
     time_t newtime = time( 0 );
 
     mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( "zabbix.reports", QUERY( "problem"<<report.c_str() ) );

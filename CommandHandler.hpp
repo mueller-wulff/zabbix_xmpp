@@ -12,6 +12,11 @@
 #include <string>
 
 #include "ConfigParser.hpp"
+#include "Show.hpp"
+#include "Execute.hpp"
+#include "Learn.hpp"
+#include "Help.hpp"
+#include "Report.hpp"
 
 #define COMMANDCOUNT 5
 
@@ -36,23 +41,7 @@ private:
 
     void initCommandArr();
 
-    void sendHelp( const Message& command );
-
-    std::string createHelpStr();
-
-    void showCommands( const Message& command );
-
-    int validateExecute( const Message& command );
-
-    std::string executeScript( std::string script );
-
-    std::string executeShell( std::string shell );
-
-    int learnCommand( const Message& command );
-
     void reportIssue( const Message& command );
-
-    void helpCommand( const Message& command );
 
     bool auth( const Message& command );
 
@@ -63,6 +52,16 @@ private:
     mongo::DBClientConnection *c;
 
     Client *j;
+
+    Show *show;
+
+    Execute *execute;
+
+    Learn *learn;
+
+    Report *report;
+
+    Help *help;
 
     ConfigParser *parser;
 

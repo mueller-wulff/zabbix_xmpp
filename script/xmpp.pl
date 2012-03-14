@@ -22,7 +22,7 @@ for ( @ARGV )
 
     if ( $arg =~ /[A-Z]/ )
     {
-        $msg = $msg . "\n";
+        $msg = $msg . " \n";
     }
     else
     {
@@ -34,6 +34,7 @@ for ( @ARGV )
 #totally reasonably way
 #to strip of first char
 $msg = reverse($msg);
+chomp($msg);
 chop($msg);
 $msg = reverse($msg);
 
@@ -54,7 +55,7 @@ my $cnx = new Net::XMPP::Client();
     connectiontype  => 'tcpip',
 );
 
-my $user        = 'roa';
+my $user        = 'admin';
 my $password    = 'test123';
 my $resource    = 'roaXMPP';
 

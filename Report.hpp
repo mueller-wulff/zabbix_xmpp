@@ -31,11 +31,11 @@ private:
 
     bool checkReport( std::string report );
 
-    time_t analyzeReport( std::string report );
+    bool analyzeReport( std::string report, std::string status );
 
     int getTimestamp();
 
-    time_t storeReport( std::string report );
+    bool storeReport( std::string report, std::string status );
 
     Client* j;
 

@@ -38,10 +38,13 @@ public:
 
    virtual void handleLog( LogLevel level, LogArea area, const std::string& message );
 
+   void tidyUp();
+
 private:
    Client* j;
    CommandHandler* comm;
    ConfigParser* parser;
+   time_t starttime;
 };
 
 }

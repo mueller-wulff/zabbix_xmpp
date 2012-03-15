@@ -13,7 +13,7 @@ CommandHandler::CommandHandler( Client* _j, ConfigParser* _parser )
     learn = new Learn( j, parser, c );
     report = new Report( j, parser, c );
     help = new Help( j, parser, c );
-
+    janitor = new Janitor( j, parser, c );
 
     initCommandArr();
 }
@@ -39,6 +39,12 @@ void CommandHandler::checkAuth( const Message& command )
         j->send( msg );
     }
 }
+
+void CommandHandler::tidyUp()
+{
+    janitor->tidyUp();
+}
+
 void CommandHandler::validateCommand( const Message& command )
 {
     std::string commandBody     = getFirst( command.body() );

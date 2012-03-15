@@ -17,6 +17,7 @@
 #include "Learn.hpp"
 #include "Help.hpp"
 #include "Report.hpp"
+#include "Janitor.hpp"
 
 #define COMMANDCOUNT 5
 
@@ -32,6 +33,8 @@ public:
 
     void checkAuth( const Message& command );
 
+    void tidyUp();
+
 private:
     void connectMongo();
 
@@ -40,8 +43,6 @@ private:
     void validateCommand( const Message& command );
 
     void initCommandArr();
-
-    void reportIssue( const Message& command );
 
     bool auth( const Message& command );
 
@@ -62,6 +63,8 @@ private:
     Report *report;
 
     Help *help;
+
+    Janitor *janitor;
 
     ConfigParser *parser;
 

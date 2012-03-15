@@ -7,6 +7,7 @@ namespace zabbix
 
 Bot::Bot( ConfigParser* _parser )
 {
+    starttime = time( 0 );
     parser = _parser;
     connectToXMPP( parser );
 }
@@ -28,7 +29,10 @@ void Bot::connectToXMPP( ConfigParser* parser )
         ConnectionError ce = ConnNoError;
         while( ce == ConnNoError )
         {
-          ce = j->recv();
+          ce = j->recv( 10000000 );
+          time_t difftime = time( 0 ) - starttime;
+          if( difftime > 60 )
+            tidyUp();
         }
     }
 }
@@ -64,6 +68,11 @@ void Bot::handleMessage( const Message& stanza, MessageSession* session )
 void Bot::handleLog( LogLevel level, LogArea area, const std::string& message )
 {
     //printf("log: level: %d, area: %d, %s\n", level, area, message.c_str() );
+}
+
+void Bot::tidyUp()
+{
+    comm->tidyUp();
 }
 
 

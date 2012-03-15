@@ -14,7 +14,7 @@ Report::Report( Client* _j, ConfigParser* _parser, mongo::DBClientConnection* _c
 void Report::reportIssue( const Message& command )
 {
     std::string report = command.body();
-    if( checkReport( report ) )
+    if( !checkReport( report ) )
         sendReport( report );
 }
 
@@ -36,22 +36,21 @@ void Report::sendReport( std::string report )
 bool Report::checkReport( std::string report )
 {
     time_t deltatime = 0;
-    if ( report.find_first_of( "PROBLEM" ) < report.npos )
-    {
-        deltatime = analyzeReport( report );
-    }
+    std::string status;
 
-    if ( deltatime > 600 )
+    if ( report.find_first_of( "OK" ) < report.npos )
     {
-        return true;
+        status = "OK";
     }
     else
     {
-        return false;
+        status = "PROBLEM";
     }
+
+    return analyzeReport( report, status );
 }
 
-time_t Report::analyzeReport( std::string report )
+bool Report::analyzeReport( std::string report, std::string status )
 {
     size_t found;
     std::string tempstr;
@@ -61,7 +60,7 @@ time_t Report::analyzeReport( std::string report )
     tempstr = tempstr.substr( 0, found );
     found = tempstr.find_last_of( " " );
     tempstr = tempstr.substr( 0, found );
-    return storeReport( tempstr );
+    return storeReport( tempstr, status );
 }
 
 int Report::getTimestamp()
@@ -70,22 +69,44 @@ int Report::getTimestamp()
     return rawtime;
 }
 
-time_t Report::storeReport( std::string report )
+bool Report::storeReport( std::string report, std::string status )
 {
     const std::string coll = "zabbix.reports";
+    std::string oldstatus;
     time_t deltatime = 0;
+    time_t olddeltatime = 0;
     time_t newtime = time( 0 );
+    time_t oldtime = time( 0 );
+    bool flapping = 0;
 
     mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( "zabbix.reports", QUERY( "problem"<<report.c_str() ) );
     while( cursor->more() )
     {
         mongo::BSONObj p = cursor->next();
-        deltatime = newtime - p.getIntField( "timestamp");
+        oldtime = p.getIntField( "new_timestamp");
+        olddeltatime = oldtime - p.getIntField( "old_timestamp" );
+        oldstatus = p.getStringField( "status" );
+    }
+
+    deltatime = newtime - oldtime;
+
+    std::cout << "delta" << deltatime << "olddelta" << olddeltatime << std::endl;
+
+    if ( deltatime < 600 && olddeltatime < 600 )
+    {
+        flapping = true;
+    }
+    if ( deltatime == 0 || olddeltatime == 0 )
+    {
+        flapping = false;
     }
 
     mongo::BSONObjBuilder* b;
     b = new mongo::BSONObjBuilder;
-    b->append( "timestamp", ( int ) newtime );
+    b->append( "flapping" , flapping );
+    b->append( "new_timestamp", ( int ) newtime );
+    b->append( "old_timestamp", ( int ) oldtime );
+    b->append( "status", status.c_str() );
     mongo::BSONObj p = b->obj();
     c->update(  coll,
                 mongo::BSONObjBuilder().append("problem", report.c_str() ).obj(),
@@ -93,7 +114,7 @@ time_t Report::storeReport( std::string report )
                 1, 0
              );
     delete b;
-    return deltatime;
+    return flapping;
 }
 
 

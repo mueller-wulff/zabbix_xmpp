@@ -90,8 +90,6 @@ bool Report::storeReport( std::string report, std::string status )
 
     deltatime = newtime - oldtime;
 
-    std::cout << "delta" << deltatime << "olddelta" << olddeltatime << std::endl;
-
     if ( deltatime < 600 && olddeltatime < 600 )
     {
         flapping = true;

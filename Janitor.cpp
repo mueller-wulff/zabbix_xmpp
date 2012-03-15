@@ -29,13 +29,12 @@ void Janitor::tidyUp()
         status = p.getStringField( "status" );
         found = status.find( "OK" );
         flapping = p.getBoolField( "flapping" );
-        deltatime = p.getIntField( "new_timestamp" ) - time ( 0 );
+        deltatime = time( 0 ) - p.getIntField( "new_timestamp" );
         problem = p.getStringField( "problem");
 
         if( flapping && deltatime > 600 && found < status.npos )
         {
-            std::cout << problem << std::endl;
-            std::cout << deltatime << std::endl;
+
             mongo::BSONObjBuilder* b;
             b = new mongo::BSONObjBuilder;
             b->append( "flapping" , !flapping );

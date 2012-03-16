@@ -26,6 +26,8 @@ private:
     std::string jidpw;
     std::string mongohost;
     std::string mongodb;
+    std::string jabberhost;
+    int janTimeout;
 
 public:
     ConfigParser();
@@ -61,6 +63,14 @@ public:
     void setScriptDir( std::string value );
 
     std::string getScriptDir();
+
+    void setjanTimeout( std::string value );
+
+    int getjanTimeout();
+
+    void setJabberHost( std::string value );
+
+    std::string getJabberHost();
 };
 
 }

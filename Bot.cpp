@@ -9,7 +9,13 @@ Bot::Bot( ConfigParser* _parser )
 {
     starttime = time( 0 );
     parser = _parser;
+    int janTimeout = parser->getjanTimeout();
     connectToXMPP( parser );
+}
+
+Bot::~Bot()
+{
+    delete comm;
 }
 
 void Bot::connectToXMPP( ConfigParser* parser )
@@ -29,7 +35,7 @@ void Bot::connectToXMPP( ConfigParser* parser )
         ConnectionError ce = ConnNoError;
         while( ce == ConnNoError )
         {
-          ce = j->recv( 10000000 );
+          ce = j->recv( janTimeout );
           time_t difftime = time( 0 ) - starttime;
           if( difftime > 60 )
             tidyUp();

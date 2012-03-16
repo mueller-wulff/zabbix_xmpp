@@ -31,6 +31,8 @@ class CommandHandler
 public:
     CommandHandler( Client* _j, ConfigParser* _parser );
 
+    ~CommandHandler();
+
     void checkAuth( const Message& command );
 
     void tidyUp();

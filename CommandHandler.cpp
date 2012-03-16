@@ -18,6 +18,18 @@ CommandHandler::CommandHandler( Client* _j, ConfigParser* _parser )
     initCommandArr();
 }
 
+CommandHandler::~CommandHandler()
+{
+    delete show;
+    delete execute;
+    delete learn;
+    delete report;
+    delete help;
+    delete janitor;
+    delete c;
+}
+
+
 void CommandHandler::connectMongo()
 {
     c = new mongo::DBClientConnection( true,0 ,0 );

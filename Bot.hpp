@@ -24,6 +24,8 @@ class Bot : public MessageHandler, LogHandler, ConnectionListener
 public:
    Bot( ConfigParser* _parser );
 
+    ~Bot();
+
    void connectToXMPP( ConfigParser* _parser );
 
    void initCommandHandler( Client *j, ConfigParser* _parser );
@@ -45,6 +47,7 @@ private:
    CommandHandler* comm;
    ConfigParser* parser;
    time_t starttime;
+   int janTimeout;
 };
 
 }

@@ -26,7 +26,8 @@ void Report::sendReport( std::string report )
     {
         mongo::BSONObj p = cursor->next();
         std::string currentAdmin = p.getStringField( "name" );
-        currentAdmin.append( "@localhost" );
+        currentAdmin.append( "@" );
+        currentAdmin.append( parser->getJabberHost() );
         Message::MessageType type;
         Message msg( type, currentAdmin, report.c_str() );
         j->send( msg );
@@ -37,8 +38,9 @@ bool Report::checkReport( std::string report )
 {
     time_t deltatime = 0;
     std::string status;
+    size_t found = report.find( "OK" );
 
-    if ( report.find_first_of( "OK" ) < report.npos )
+    if ( found < report.npos )
     {
         status = "OK";
     }
@@ -98,7 +100,7 @@ bool Report::storeReport( std::string report, std::string status )
     {
         flapping = false;
     }
-
+    std::cout << status << std::endl;
     mongo::BSONObjBuilder* b;
     b = new mongo::BSONObjBuilder;
     b->append( "flapping" , flapping );

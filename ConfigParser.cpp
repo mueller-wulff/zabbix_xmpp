@@ -10,6 +10,8 @@ ConfigParser::ConfigParser()
 
     hasConfig = 0;
 
+    janTimeout = -2;
+
 }
 
 void ConfigParser::parse( int &argc, char** &argv )
@@ -147,6 +149,16 @@ void ConfigParser::checkKey( std::string key, std::string value )
     {
         setScriptDir( value );
     }
+
+    if ( ( key.compare( 0, key.length(), "jantimeout" ) ) == 0 )
+    {
+        setjanTimeout( value );
+    }
+
+    if ( ( key.compare( 0, key.length(), "jabberhost" ) ) == 0 )
+    {
+        setJabberHost( value );
+    }
 }
 
 void ConfigParser::log()
@@ -155,6 +167,7 @@ void ConfigParser::log()
     syslog( LOG_INFO, "mongodb set to %s", getMongoDB().c_str() );
     syslog( LOG_INFO, "jid set to %s", getJID().c_str() );
     syslog( LOG_INFO, "jidpw set to %s", getJIDPW().c_str() );
+    syslog( LOG_INFO, "jantimeout set to %d", getjanTimeout() );
 }
 
 void ConfigParser::setMongoHost( std::string value )
@@ -225,6 +238,34 @@ std::string ConfigParser::getScriptDir()
         abort();
     }
     return scriptdir;
+}
+
+void ConfigParser::setjanTimeout( std::string value )
+{
+    janTimeout = atoi( value.c_str() );
+}
+
+int ConfigParser::getjanTimeout()
+{
+    if ( janTimeout == -2 )
+    {
+        abort();
+    }
+    return janTimeout;
+}
+
+void ConfigParser::setJabberHost( std::string value )
+{
+    jabberhost = value;
+}
+
+std::string ConfigParser::getJabberHost()
+{
+    if ( jabberhost.empty() )
+    {
+        abort();
+    }
+    return jabberhost;
 }
 
 }

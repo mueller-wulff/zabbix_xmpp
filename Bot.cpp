@@ -9,7 +9,7 @@ Bot::Bot( ConfigParser* _parser )
 {
     starttime = time( 0 );
     parser = _parser;
-    int janTimeout = parser->getjanTimeout();
+    janTimeout = parser->getjanTimeout();
     connectToXMPP( parser );
 }
 

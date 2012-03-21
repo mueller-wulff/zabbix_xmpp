@@ -100,7 +100,7 @@ bool Report::storeReport( std::string report, std::string status )
     {
         flapping = false;
     }
-    std::cout << status << std::endl;
+
     mongo::BSONObjBuilder* b;
     b = new mongo::BSONObjBuilder;
     b->append( "flapping" , flapping );
@@ -116,6 +116,5 @@ bool Report::storeReport( std::string report, std::string status )
     delete b;
     return flapping;
 }
-
 
 }

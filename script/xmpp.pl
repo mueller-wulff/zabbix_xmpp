@@ -12,15 +12,19 @@ use warnings;
 
 $| = 1;
 
-my $msg;
 
 my $rcpt = shift( @ARGV );
 
+my $msg = shift( @ARGV );
+$msg = "!report \n";
 for ( @ARGV )
 {
     my $arg = $_;
 
-    if ( $arg =~ /[A-Z]/ )
+    if (    $arg =~ /Trigger:/ 
+         || $arg =~ /Trigger status:/ 
+         || $arg =~ /Trigger severity:/
+       )
     {
         $msg = $msg . " \n";
     }
@@ -31,13 +35,13 @@ for ( @ARGV )
     $msg = $msg . $arg;
 }
 
+print($msg);
 #totally reasonably way
 #to strip of first char
 $msg = reverse($msg);
 chomp($msg);
-chop($msg);
+#chop($msg);
 $msg = reverse($msg);
-
 my @res;
 
 my $host = 'localhost';

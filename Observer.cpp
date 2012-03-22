@@ -15,7 +15,7 @@ Observer::Observer( ConfigParser* _parser )
     ERR_load_SSL_strings();
     cert = "/home/roa/programming/examples/ssl_conn/ssl_example/servercert.pem";
     key  = "/home/roa/programming/examples/ssl_conn/ssl_example/private.key";
-    host = "localhost:443";
+    host = "0.0.0.0:443";
 
     ctx = SSL_CTX_new(SSLv3_server_method());
     SSL_CTX_use_certificate_file(ctx, cert, SSL_FILETYPE_PEM);
@@ -188,15 +188,17 @@ void Observer::handleClient()
     } while( SSL_pending( ssl ) );
 
     if( !tempstr.empty() )
-    {
         answer = parseReq( tempstr );
 
-    }
     std::string write;
-    if ( answer )
+    if( answer )
+    {
         write = createAnswer200();
+    }
     else
+    {
         write = createAnswer401();
+    }
     int numbytes = SSL_write( ssl, write.c_str(), write.size() );
     if( numbytes > 0 )
     {
@@ -235,6 +237,7 @@ bool Observer::parseReq( std::string req )
 {
     std::stringstream reqStream;
     std::string line;
+    bool returner = false;
     reqStream << req;
     while( getline( reqStream, line ) )
     {
@@ -242,24 +245,25 @@ bool Observer::parseReq( std::string req )
         if( found == 0 )
         {
             std::string digest = line.substr( line.find_last_of( " " ) + 1, line.npos - 1 );
-            std::string ok = "test123:test123";
-
-            if( decodeDigest( digest ).compare( 0, ok.length(), ok ) == 0 )
+            std::string ok = "test123:test";
+            std::string decoded = decodeDigest( digest );
+            if( decoded.compare( 0, ok.length(), ok ) == 0 )
             {
-                return true;
+                returner = true;
             }
             else
             {
-                return false;
+                returner = false;
             }
         }
     }
+    return returner;
 }
 
 std::string Observer::decodeDigest( std::string digest )
 {
     int length = digest.size() + 1;
-    char *cdigest = ( char* ) malloc( length );
+    char *cdigest;// = ( char* ) malloc( length );
     cdigest = ( char* ) digest.c_str();
     char * buffer = ( char * ) malloc( length );
     BIO *b64, *bmem;
@@ -270,6 +274,8 @@ std::string Observer::decodeDigest( std::string digest )
     int r = BIO_read( bmem, buffer, length );
     BIO_free_all( bmem );
     std::string decoded = buffer;
+    //free(cdigest);
+    free(buffer);
 
     return decoded;
 }

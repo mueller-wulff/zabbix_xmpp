@@ -5,17 +5,30 @@ namespace zabbix
 Observer::Observer( ConfigParser* _parser )
 {
     parser = _parser;
-    socketfd = create_and_bind("80");
 
     c = new mongo::DBClientConnection( true,0 ,0 );
     c->connect( parser->getMongoHost() );
 
-    if (listen(socketfd, BACKLOG) == -1)
+    SSL_library_init();
+    SSL_load_error_strings();
+    ERR_load_BIO_strings();
+    ERR_load_SSL_strings();
+    cert = "/home/roa/programming/examples/ssl_conn/ssl_example/servercert.pem";
+    key  = "/home/roa/programming/examples/ssl_conn/ssl_example/private.key";
+    host = "localhost:443";
+
+    ctx = SSL_CTX_new(SSLv3_server_method());
+    SSL_CTX_use_certificate_file(ctx, cert, SSL_FILETYPE_PEM);
+    SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM);
+    abio = BIO_new_accept(host);
+    if( abio == NULL )
     {
         abort();
     }
-    FD_SET(socketfd, &master);
-    fdmax = socketfd;
+    if( BIO_do_accept( abio ) <= 0 )
+    {
+        abort();
+    }
 }
 
 void Observer::run()
@@ -26,6 +39,7 @@ void Observer::run()
         if ( ( pid = fork() ) == 0 )
         {
             Bot *b;
+            dropRights();
             b = new Bot( parser );
             exit(0);
         }
@@ -39,192 +53,43 @@ void Observer::run()
 void Observer::observe()
 {
 
-    while ( 1 )
+    fd_set fds;
+
+    int afd = BIO_get_fd( abio,NULL );
+
+    while ( true )
     {
+        FD_ZERO( &fds );
+        FD_SET( afd, &fds );
         struct timeval timeout;
         timeout.tv_sec = 1;
         timeout.tv_usec = 0;
 
         pid_t cpidstat = waitpid(pid, &status, WNOHANG);
-
         if ( cpidstat == -1 )
         {
             break;
         }
 
-        read_fds = master;
-
-        if (select(fdmax+1, &read_fds, NULL, NULL, &timeout) == -1)
+        if (select(afd+1, &fds, NULL, NULL, &timeout) == -1)
         {
             //abort();
         }
         else
         {
-            handleData();
-        }
-
-    }
-}
-
-int Observer::create_and_bind( const char *port )
-{
-    struct addrinfo hints;
-    struct addrinfo *result, *rp;
-    int listener;
-    int socketfd;
-
-    memset( &hints, 0, sizeof( struct addrinfo) );
-
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_PASSIVE;
-
-    listener = getaddrinfo( NULL, port, &hints, &result );
-    if ( listener != 0 )
-    {
-        return -1;
-    }
-
-    for ( rp = result; rp != NULL; rp = rp->ai_next )
-    {
-        socketfd = socket( rp->ai_family, rp->ai_socktype, rp->ai_protocol );
-        if ( socketfd == -1 )
-        {
-            continue;
-        }
-        int on = 1;
-
-        listener = bind(socketfd, rp->ai_addr, rp->ai_addrlen);
-
-        if ( listener == 0 )
-        {
-            break;
-        }
-        close( socketfd );
-    }
-
-    if ( rp == NULL )
-    {
-        return -1;
-    }
-
-    freeaddrinfo( result );
-    return socketfd;
-}
-
-void Observer::handleData()
-{
-    int i;
-    int nbytes;
-    char buf[4028];
-
-
-    for( i = 0; i <= fdmax; i++ )
-    {
-        if ( FD_ISSET( i, &read_fds ) )
-        {
-            if ( i == socketfd )
+            if( FD_ISSET( afd, &fds ) && BIO_do_accept( abio ) > 0 )
             {
-                addrlen = sizeof remoteaddr;
-                newfd = accept( socketfd, ( struct sockaddr * )&remoteaddr, &addrlen );
-
-                if ( newfd == -1 )
-                {
-                    perror( "accept" );
-                }
-                else
-                {
-                    FD_SET( newfd, &master );
-                    if ( newfd > fdmax )
-                    {
-                        fdmax = newfd;
-                    }
-                }
-            }
-            else
-            {
-                // handle data from a client
-                if ( ( nbytes = recv( i, buf, sizeof buf, 0 ) ) <= 0 )
-                {
-                    // got error or connection closed by client
-                    if ( nbytes == 0 )
-                    {
-                        //remote conn closed
-                    }
-                    else
-                    {
-                        perror( "recv" );
-                    }
-                    close( i );
-                    FD_CLR( i, &master );
-                }
-                else
-                {
-                    std::cout << buf << std::endl;
-                    processRequest( buf, i );
-                }
-                close(i);
-                FD_CLR(i, &master);
-                memset( buf, '\0', sizeof( buf ) );
+                int r;
+                char rbuf[4096];
+                client = BIO_pop( abio );
+                ssl = SSL_new( ctx );
+                SSL_set_accept_state( ssl );
+                SSL_set_bio( ssl, client, client );
+                SSL_accept( ssl );
+                handleClient();
             }
         }
     }
-}
-
-void Observer::processRequest( std::string request, int i )
-{
-    std::stringstream reqStream;
-    std::string reqLine;
-    reqStream << request;
-    int numbytes;
-    bool validReq = true;
-
-    while ( getline( reqStream, reqLine ) )
-    {
-        if( reqLine.find( "Origin" ) == 0 )
-        {
-            if ( !checkOrigin( reqLine ) )
-            {
-                break;
-            }
-            else
-            {
-                validReq = true;
-            }
-        }
-    }
-
-    if ( validReq )
-    {
-        std::string answer = createAnswer();
-        numbytes = send( i, answer.c_str(), answer.size(), 0 );
-    }
-}
-
-bool Observer::checkOrigin( std::string origin )
-{
-    // :P
-    return 1;
-}
-
-std::string Observer::createAnswer()
-{
-    std::string answer;
-    answer.append( "HTTP/1.1 200 OK\r\n" );
-    answer.append( "Server: Observer/0.01\r\n" );
-    answer.append( "Content-Type: text/xml\r\n" );
-    //answer.append("WWW-Authenticate: Basic realm=\"Secure Area\"");
-    answer.append( "Connection: close\r\n");
-    answer.append( "\r\n" );
-
-    answer.append( "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n" );
-    answer.append( "<body>\r\n" );
-
-    answer.append( getReports() );
-
-    answer.append( "</body>\r\n" );
-
-    return answer;
 }
 
 std::string Observer::getReports()
@@ -248,6 +113,175 @@ std::string Observer::getReports()
         }
     }
     return report.str();
+}
+
+void Observer::handleClient()
+{
+    int cfd = BIO_get_fd( client, NULL );
+    int r;
+    char rbuf[4096];
+    std::string tempstr;
+    bool answer = false;
+
+    r = SSL_read( ssl, rbuf, sizeof( rbuf ) - 1 );
+    rbuf[r] = '\0';
+    tempstr.append( rbuf );
+
+    do
+    {
+        r = SSL_read( ssl, rbuf, sizeof( rbuf ) - 1 );
+        if( r < 0 )
+        {
+            switch( SSL_get_error( ssl, r ) )
+            {
+                case SSL_ERROR_ZERO_RETURN:
+                {
+                    std::cout << "zeroreturn" << std::endl;
+                    break;
+                }
+                case SSL_ERROR_WANT_READ:
+                {
+                    std::cout << "wantread" << std::endl;
+                    break;
+                }
+                case SSL_ERROR_WANT_WRITE:
+                {
+                    std::cout << "want write" << std::endl;
+                    break;
+                }
+                case SSL_ERROR_WANT_CONNECT:
+                {
+                    std::cout << "want connect" << std::endl;
+                    break;
+                }
+                case SSL_ERROR_WANT_ACCEPT:
+                {
+                    std::cout << "want accept" << std::endl;
+                    break;
+                }
+                case SSL_ERROR_WANT_X509_LOOKUP:
+                {
+                    std::cout << "want x509" << std::endl;
+                    break;
+                }
+                case SSL_ERROR_SYSCALL:
+                {
+                    std::cout << "syscall" << std::endl;
+                    std::cout << strerror(errno) << std::endl;
+                    break;
+                }
+                default:
+                {
+                }
+            }
+            break;
+        }
+        if( r == 0 )
+        {
+            break;
+        }
+        else
+        {
+            rbuf[r] = '\0';
+            tempstr.append( rbuf );
+        }
+    } while( SSL_pending( ssl ) );
+
+    if( !tempstr.empty() )
+    {
+        answer = parseReq( tempstr );
+
+    }
+    std::string write;
+    if ( answer )
+        write = createAnswer200();
+    else
+        write = createAnswer401();
+    int numbytes = SSL_write( ssl, write.c_str(), write.size() );
+    if( numbytes > 0 )
+    {
+        close( cfd );
+    }
+}
+
+std::string Observer::createAnswer401()
+{
+
+    std::string answer;
+    answer.append( "HTTP/1.1 401 Unauthorized\r\n" );
+    answer.append( "WWW-Authenticate: Basic realm=\"Secure Area\"" );
+    answer.append( "Connection: close\r\n" );
+    answer.append( "\r\n" );
+    return answer;
+}
+
+std::string Observer::createAnswer200()
+{
+
+    std::string answer;
+    answer.append( "HTTP/1.1 200 OK\r\n" );
+    answer.append( "Server: TestServer/0.01\r\n" );
+    answer.append( "Content-Type: text/xml\r\n" );
+    answer.append( "Connection: close\r\n");
+    answer.append( "\r\n" );
+    answer.append( "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n" );
+    answer.append( "<body>\r\n" );
+    answer.append( "<p id=\"1\" problem=\"test\"/>\r\n" );
+    answer.append( "</body>" );
+    return answer;
+}
+
+bool Observer::parseReq( std::string req )
+{
+    std::stringstream reqStream;
+    std::string line;
+    reqStream << req;
+    while( getline( reqStream, line ) )
+    {
+        size_t found = line.find( "Authorization" );
+        if( found == 0 )
+        {
+            std::string digest = line.substr( line.find_last_of( " " ) + 1, line.npos - 1 );
+            std::string ok = "test123:test123";
+
+            if( decodeDigest( digest ).compare( 0, ok.length(), ok ) == 0 )
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+}
+
+std::string Observer::decodeDigest( std::string digest )
+{
+    int length = digest.size() + 1;
+    char *cdigest = ( char* ) malloc( length );
+    cdigest = ( char* ) digest.c_str();
+    char * buffer = ( char * ) malloc( length );
+    BIO *b64, *bmem;
+    b64 = BIO_new( BIO_f_base64() );
+    BIO_set_flags( b64, BIO_FLAGS_BASE64_NO_NL );
+    bmem = BIO_new_mem_buf( cdigest, length );
+    bmem = BIO_push( b64, bmem );
+    int r = BIO_read( bmem, buffer, length );
+    BIO_free_all( bmem );
+    std::string decoded = buffer;
+
+    return decoded;
+}
+
+void Observer::dropRights()
+{
+    if (getuid() == 0) {
+    if (setgid( 1000 ) != 0)
+        printf("setgid: Unable to drop group privileges: %s", strerror(errno));
+    if (setuid( 1000 ) != 0)
+        printf("setuid: Unable to drop user privileges: %S", strerror(errno));
+    }
 }
 
 }

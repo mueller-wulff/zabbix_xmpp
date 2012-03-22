@@ -8,24 +8,23 @@
 #include <gloox/message.h>
 
 #include "client/dbclient.h"
-#include <iostream>
-#include <string>
-#include <unistd.h>
+#include <openssl/bio.h>
+#include <openssl/ssl.h>
+#include <stdlib.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
+#include <unistd.h>
+#include <iostream>
+#include <errno.h>
+#include <sstream>
+
 
 #include "client/dbclient.h"
 
 #include "ConfigParser.hpp"
 #include "Bot.hpp"
 
-#define BACKLOG 10
 
 using namespace gloox;
 
@@ -44,20 +43,21 @@ private:
     mongo::DBClientConnection *c;
     pid_t pid;
     int status;
-    int socketfd;
-    int newfd;
-    fd_set master;
-    fd_set read_fds;
-    int fdmax;
-    socklen_t addrlen;
-    struct sockaddr_storage remoteaddr;
+    SSL_CTX* ctx;
+    char *cert;
+    char *key;
+    BIO *abio;
+    BIO *client;
+    SSL *ssl;
+    char *host;
 
+    void handleClient();
+    std::string createAnswer401();
+    std::string createAnswer200();
+    bool parseReq( std::string req );
+    std::string decodeDigest( std::string digest );
+    void dropRights();
     void observe();
-    int create_and_bind( const char *port );
-    void handleData();
-    void processRequest( std::string request, int i );
-    bool checkOrigin( std::string origin );
-    std::string createAnswer();
     std::string getReports();
 };
 

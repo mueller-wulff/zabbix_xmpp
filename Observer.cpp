@@ -5,7 +5,7 @@ namespace zabbix
 Observer::Observer( ConfigParser* _parser )
 {
     parser = _parser;
-    socketfd = create_and_bind("9036");
+    socketfd = create_and_bind("80");
 
     c = new mongo::DBClientConnection( true,0 ,0 );
     c->connect( parser->getMongoHost() );
@@ -22,10 +22,12 @@ void Observer::run()
 {
     while(1)
     {
+        sleep(10);
         if ( ( pid = fork() ) == 0 )
         {
             Bot *b;
             b = new Bot( parser );
+            exit(0);
         }
         else
         {
@@ -43,9 +45,9 @@ void Observer::observe()
         timeout.tv_sec = 1;
         timeout.tv_usec = 0;
 
-        pid_t cpid = waitpid(pid, &status, WNOHANG);
+        pid_t cpidstat = waitpid(pid, &status, WNOHANG);
 
-        if ( cpid == -1 )
+        if ( cpidstat == -1 )
         {
             break;
         }
@@ -208,20 +210,20 @@ bool Observer::checkOrigin( std::string origin )
 std::string Observer::createAnswer()
 {
     std::string answer;
-    answer.append( "HTTP/1.1 401 Unauthorized\r\n" );
+    answer.append( "HTTP/1.1 200 OK\r\n" );
     answer.append( "Server: Observer/0.01\r\n" );
-    //answer.append( "Content-Type: text/xml\r\n" );
-    answer.append("WWW-Authenticate: Basic realm=\"Secure Area\"");
+    answer.append( "Content-Type: text/xml\r\n" );
+    //answer.append("WWW-Authenticate: Basic realm=\"Secure Area\"");
     answer.append( "Connection: close\r\n");
     answer.append( "\r\n" );
-    /*
+
     answer.append( "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n" );
     answer.append( "<body>\r\n" );
 
     answer.append( getReports() );
 
-    answer.append( "</body>" );
-    */
+    answer.append( "</body>\r\n" );
+
     return answer;
 }
 

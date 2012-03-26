@@ -1,17 +1,7 @@
 #ifndef ZABBIX_HELP_HPP
 #define ZABBIX_HELP_HPP
 
-#include <gloox/client.h>
-#include <gloox/loghandler.h>
-#include <gloox/messagehandler.h>
-#include <gloox/connectionlistener.h>
-#include <gloox/message.h>
-
-#include "client/dbclient.h"
-#include <iostream>
-#include <string>
-
-#include "ConfigParser.hpp"
+#include "Commands.hpp"
 
 #define COMMANDCOUNT 5
 
@@ -20,7 +10,7 @@ using namespace gloox;
 namespace zabbix
 {
 
-class Help
+class Help : public Commands
 {
 
 public:
@@ -39,15 +29,6 @@ private:
 
     std::string createHelpStr();
 
-    std::string getFirst( std::string command );
-
-    std::string getAppendix( std::string appendix );
-
-    Client* j;
-
-    ConfigParser* parser;
-
-    mongo::DBClientConnection* c;
 };
 
 }

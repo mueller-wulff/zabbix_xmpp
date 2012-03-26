@@ -5,10 +5,8 @@ namespace zabbix
 {
 
 Report::Report( Client* _j, ConfigParser* _parser, mongo::DBClientConnection* _c )
+    : Commands( _j, _parser, _c )
 {
-    j = _j;
-    c = _c;
-    parser = _parser;
 }
 
 void Report::reportIssue( const Message& command )

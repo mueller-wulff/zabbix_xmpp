@@ -1,24 +1,14 @@
 #ifndef ZABBIX_SHOW_HPP
 #define ZABBIX_SHOW_HPP
 
-#include <gloox/client.h>
-#include <gloox/loghandler.h>
-#include <gloox/messagehandler.h>
-#include <gloox/connectionlistener.h>
-#include <gloox/message.h>
-
-#include "client/dbclient.h"
-#include <iostream>
-#include <string>
-
-#include "ConfigParser.hpp"
+#include "Commands.hpp"
 
 using namespace gloox;
 
 namespace zabbix
 {
 
-class Show
+class Show : public Commands
 {
 
 public:
@@ -27,11 +17,7 @@ public:
     void showCommands( const Message& command );
 
 private:
-    Client* j;
 
-    ConfigParser* parser;
-
-    mongo::DBClientConnection* c;
 };
 
 }

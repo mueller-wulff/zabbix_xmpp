@@ -3,10 +3,9 @@
 namespace zabbix
 {
 Execute::Execute( Client* _j, ConfigParser* _parser, mongo::DBClientConnection* _c )
+    : Commands( _j, _parser, _c )
 {
-    j = _j;
-    c = _c;
-    parser = _parser;
+
 }
 
 int Execute::validateExecute( const Message& command )
@@ -83,26 +82,6 @@ std::string Execute::executeShell( std::string shell )
     }
     pclose( pipe );
     return result;
-}
-
-std::string Execute::getFirst( std::string command )
-{
-    size_t found = command.find_first_of( " " );
-    if ( found < command.npos )
-    {
-        return command.substr( 0, found );
-    }
-    return command;
-}
-
-std::string Execute::getAppendix( std::string appendix )
-{
-    size_t found = appendix.find_first_of( " " );
-    if ( found < appendix.npos )
-    {
-        return appendix.substr( found + 1, appendix.npos );
-    }
-    return "";
 }
 
 }

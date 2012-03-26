@@ -1,24 +1,14 @@
 #ifndef ZABBIX_REPORT_HPP
 #define ZABBIX_REPORT_HPP
 
-#include <gloox/client.h>
-#include <gloox/loghandler.h>
-#include <gloox/messagehandler.h>
-#include <gloox/connectionlistener.h>
-#include <gloox/message.h>
-
-#include "client/dbclient.h"
-#include <iostream>
-#include <string>
-
-#include "ConfigParser.hpp"
+#include "Commands.hpp"
 
 using namespace gloox;
 
 namespace zabbix
 {
 
-class Report
+class Report : public Commands
 {
 
 public:
@@ -37,11 +27,6 @@ private:
 
     bool storeReport( std::string report, std::string status );
 
-    Client* j;
-
-    ConfigParser* parser;
-
-    mongo::DBClientConnection* c;
 };
 
 }

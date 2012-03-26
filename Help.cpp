@@ -4,10 +4,8 @@ namespace zabbix
 {
 
 Help::Help( Client* _j, ConfigParser* _parser, mongo::DBClientConnection* _c )
+    : Commands( _j, _parser, _c )
 {
-    j = _j;
-    c = _c;
-    parser = _parser;
     initCommandArr();
 }
 
@@ -109,26 +107,6 @@ std::string Help::createHelpStr()
         helpStr.append( commands[j] );
     }
     return helpStr;
-}
-
-std::string Help::getFirst( std::string command )
-{
-    size_t found = command.find_first_of( " " );
-    if ( found < command.npos )
-    {
-        return command.substr( 0, found );
-    }
-    return command;
-}
-
-std::string Help::getAppendix( std::string appendix )
-{
-    size_t found = appendix.find_first_of( " " );
-    if ( found < appendix.npos )
-    {
-        return appendix.substr( found + 1, appendix.npos );
-    }
-    return "";
 }
 
 }

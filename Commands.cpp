@@ -8,6 +8,8 @@ Commands::Commands( Client* _j, ConfigParser* _parser, mongo::DBClientConnection
     j = _j;
     c = _c;
     parser = _parser;
+
+    openlog( "zabbix", LOG_PID, LOG_USER );
 }
 
 

@@ -10,6 +10,7 @@
 #include "client/dbclient.h"
 #include <iostream>
 #include <string>
+#include <syslog.h>
 
 #include "ConfigParser.hpp"
 

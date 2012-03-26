@@ -39,6 +39,7 @@ int Execute::validateExecute( const Message& command )
                 Message msg( type,  command.from(), executeShell( p.getStringField( ( "command" ) ) ) );
                 j->send( msg );
                 executed = true;
+                syslog( LOG_INFO, "%s executed command %s ( %s )", command.from().username().c_str(), p.getStringField( "name" ), p.getStringField( "name" ) );
             }
             break;
         }

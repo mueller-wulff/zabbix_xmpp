@@ -37,6 +37,8 @@ int Learn::learnCommand( const Message& command )
     info.append( "\nCommand actually executed: " );
     info.append( commandCommand );
 
+    syslog( LOG_INFO, "%s tought command %s", command.from().username().c_str(), commandName.c_str() );
+
     Message::MessageType type;
     Message msg( type,  command.from(), info );
     j->send( msg );

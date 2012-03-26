@@ -27,6 +27,7 @@ void Forget::forgetCommand( const Message& command )
             answer.append( "I deleted " );
             answer.append( currentCommand.getStringField( "name" ) );
             answer.append( " from the database.");
+            syslog( LOG_INFO, "%s deleted command %s", command.from().username().c_str(), currentCommand.getStringField( "name" ) );
             break;
         }
     }

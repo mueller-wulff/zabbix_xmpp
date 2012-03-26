@@ -81,5 +81,4 @@ void Bot::tidyUp()
     comm->tidyUp();
 }
 
-
 }

@@ -94,6 +94,7 @@ void Help::initCommandArr()
     commands[2] = "!learn";
     commands[3] = "!report";
     commands[4] = "!help";
+    commands[5] = "!forget";
 }
 
 std::string Help::createHelpStr()

@@ -3,7 +3,7 @@
 
 #include "Commands.hpp"
 
-#define COMMANDCOUNT 5
+#define COMMANDCOUNT 6
 
 using namespace gloox;
 

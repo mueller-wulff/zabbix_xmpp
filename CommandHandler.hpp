@@ -17,9 +17,10 @@
 #include "Learn.hpp"
 #include "Help.hpp"
 #include "Report.hpp"
+#include "Forget.hpp"
 #include "Janitor.hpp"
 
-#define COMMANDCOUNT 5
+#define COMMANDCOUNT 6
 
 using namespace gloox;
 
@@ -65,6 +66,8 @@ private:
     Report *report;
 
     Help *help;
+
+    Forget *forget;
 
     Janitor *janitor;
 

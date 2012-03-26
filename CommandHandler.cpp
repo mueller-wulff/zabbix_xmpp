@@ -13,6 +13,7 @@ CommandHandler::CommandHandler( Client* _j, ConfigParser* _parser )
     learn = new Learn( j, parser, c );
     report = new Report( j, parser, c );
     help = new Help( j, parser, c );
+    forget = new Forget( j, parser, c );
     janitor = new Janitor( j, parser, c );
 
     initCommandArr();
@@ -25,6 +26,7 @@ CommandHandler::~CommandHandler()
     delete learn;
     delete report;
     delete help;
+    delete forget;
     delete janitor;
     delete c;
 }
@@ -34,7 +36,6 @@ void CommandHandler::connectMongo()
 {
     c = new mongo::DBClientConnection( true,0 ,0 );
     c->connect( parser->getMongoHost() );
-
 }
 
 void CommandHandler::checkAuth( const Message& command )
@@ -96,6 +97,12 @@ void CommandHandler::validateCommand( const Message& command )
                 help->helpCommand( command );
                 break;
             }
+            //!forget
+            case 5:
+            {
+                forget->forgetCommand( command );
+                break;
+            }
             default:
             {
                 help->sendHelp( command );
@@ -129,6 +136,7 @@ void CommandHandler::initCommandArr()
     commands[2] = "!learn";
     commands[3] = "!report";
     commands[4] = "!help";
+    commands[5] = "!forget";
 }
 
 bool CommandHandler::auth( const Message& command )

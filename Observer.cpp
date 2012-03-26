@@ -13,9 +13,9 @@ Observer::Observer( ConfigParser* _parser )
     SSL_load_error_strings();
     ERR_load_BIO_strings();
     ERR_load_SSL_strings();
-    cert = "/home/roa/programming/examples/ssl_conn/ssl_example/servercert.pem";
-    key  = "/home/roa/programming/examples/ssl_conn/ssl_example/private.key";
-    host = "0.0.0.0:443";
+    cert = ( char* ) parser->getServerCert().c_str();
+    key  = ( char* ) parser->getServerKey().c_str();
+    host = ( char* ) parser->getSSLHost().c_str();
 
     ctx = SSL_CTX_new(SSLv3_server_method());
     SSL_CTX_use_certificate_file(ctx, cert, SSL_FILETYPE_PEM);
@@ -118,74 +118,31 @@ std::string Observer::getReports()
 void Observer::handleClient()
 {
     int cfd = BIO_get_fd( client, NULL );
-    int r;
+    int r = 1;
     char rbuf[4096];
     std::string tempstr;
     bool answer = false;
 
-    r = SSL_read( ssl, rbuf, sizeof( rbuf ) - 1 );
-    rbuf[r] = '\0';
-    tempstr.append( rbuf );
-
-    do
+    while( r == 1 )
     {
-        r = SSL_read( ssl, rbuf, sizeof( rbuf ) - 1 );
-        if( r < 0 )
+        do
         {
-            switch( SSL_get_error( ssl, r ) )
+            r = SSL_read( ssl, rbuf, sizeof( rbuf ) - 1 );
+            if( r < 0 )
             {
-                case SSL_ERROR_ZERO_RETURN:
-                {
-                    std::cout << "zeroreturn" << std::endl;
-                    break;
-                }
-                case SSL_ERROR_WANT_READ:
-                {
-                    std::cout << "wantread" << std::endl;
-                    break;
-                }
-                case SSL_ERROR_WANT_WRITE:
-                {
-                    std::cout << "want write" << std::endl;
-                    break;
-                }
-                case SSL_ERROR_WANT_CONNECT:
-                {
-                    std::cout << "want connect" << std::endl;
-                    break;
-                }
-                case SSL_ERROR_WANT_ACCEPT:
-                {
-                    std::cout << "want accept" << std::endl;
-                    break;
-                }
-                case SSL_ERROR_WANT_X509_LOOKUP:
-                {
-                    std::cout << "want x509" << std::endl;
-                    break;
-                }
-                case SSL_ERROR_SYSCALL:
-                {
-                    std::cout << "syscall" << std::endl;
-                    std::cout << strerror(errno) << std::endl;
-                    break;
-                }
-                default:
-                {
-                }
+                readError( r );
             }
-            break;
-        }
-        if( r == 0 )
-        {
-            break;
-        }
-        else
-        {
-            rbuf[r] = '\0';
-            tempstr.append( rbuf );
-        }
-    } while( SSL_pending( ssl ) );
+            if( r == 0 )
+            {
+                break;
+            }
+            else
+            {
+                rbuf[r] = '\0';
+                tempstr.append( rbuf );
+            }
+        } while( SSL_pending( ssl ) );
+    }
 
     if( !tempstr.empty() )
         answer = parseReq( tempstr );
@@ -263,7 +220,7 @@ bool Observer::parseReq( std::string req )
 std::string Observer::decodeDigest( std::string digest )
 {
     int length = digest.size() + 1;
-    char *cdigest;// = ( char* ) malloc( length );
+    char *cdigest;
     cdigest = ( char* ) digest.c_str();
     char * buffer = ( char * ) malloc( length );
     BIO *b64, *bmem;
@@ -274,7 +231,6 @@ std::string Observer::decodeDigest( std::string digest )
     int r = BIO_read( bmem, buffer, length );
     BIO_free_all( bmem );
     std::string decoded = buffer;
-    //free(cdigest);
     free(buffer);
 
     return decoded;
@@ -287,6 +243,52 @@ void Observer::dropRights()
         printf("setgid: Unable to drop group privileges: %s", strerror(errno));
     if (setuid( 1000 ) != 0)
         printf("setuid: Unable to drop user privileges: %S", strerror(errno));
+    }
+}
+
+void Observer::readError( int r )
+{
+    switch( SSL_get_error( ssl, r ) )
+    {
+        case SSL_ERROR_ZERO_RETURN:
+        {
+            std::cout << "zeroreturn" << std::endl;
+            break;
+        }
+        case SSL_ERROR_WANT_READ:
+        {
+            std::cout << "wantread" << std::endl;
+            break;
+        }
+        case SSL_ERROR_WANT_WRITE:
+        {
+            std::cout << "want write" << std::endl;
+            break;
+        }
+        case SSL_ERROR_WANT_CONNECT:
+        {
+            std::cout << "want connect" << std::endl;
+            break;
+        }
+        case SSL_ERROR_WANT_ACCEPT:
+        {
+            std::cout << "want accept" << std::endl;
+            break;
+        }
+        case SSL_ERROR_WANT_X509_LOOKUP:
+        {
+            std::cout << "want x509" << std::endl;
+            break;
+        }
+        case SSL_ERROR_SYSCALL:
+        {
+            std::cout << "syscall" << std::endl;
+            std::cout << strerror(errno) << std::endl;
+            break;
+        }
+        default:
+        {
+        }
     }
 }
 

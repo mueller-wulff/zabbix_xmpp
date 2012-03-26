@@ -59,6 +59,7 @@ private:
     void dropRights();
     void observe();
     std::string getReports();
+    void readError( int r );
 };
 
 }

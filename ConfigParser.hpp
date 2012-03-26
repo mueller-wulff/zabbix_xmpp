@@ -27,6 +27,9 @@ private:
     std::string mongohost;
     std::string mongodb;
     std::string jabberhost;
+    std::string servercert;
+    std::string serverkey;
+    std::string sslhost;
     int janTimeout;
 
 public:
@@ -71,6 +74,18 @@ public:
     void setJabberHost( std::string value );
 
     std::string getJabberHost();
+
+    void setServerCert( std::string value );
+
+    std::string getServerCert();
+
+    void setServerKey( std::string value );
+
+    std::string getServerKey();
+
+    void setSSLHost( std::string value );
+
+    std::string getSSLHost();
 };
 
 }

@@ -159,6 +159,19 @@ void ConfigParser::checkKey( std::string key, std::string value )
     {
         setJabberHost( value );
     }
+
+    if ( ( key.compare( 0, key.length(), "servercert" ) ) == 0 )
+    {
+        setServerCert( value );
+    }
+    if ( ( key.compare( 0, key.length(), "serverkey" ) ) == 0 )
+    {
+        setServerKey( value );
+    }
+    if ( ( key.compare( 0, key.length(), "sslhost" ) ) == 0 )
+    {
+        setSSLHost( value );
+    }
 }
 
 void ConfigParser::log()
@@ -168,6 +181,10 @@ void ConfigParser::log()
     syslog( LOG_INFO, "jid set to %s", getJID().c_str() );
     syslog( LOG_INFO, "jidpw set to %s", getJIDPW().c_str() );
     syslog( LOG_INFO, "jantimeout set to %d", getjanTimeout() );
+    syslog( LOG_INFO, "servercert set to %s", getServerCert().c_str() );
+    syslog( LOG_INFO, "serverkey set to %s", getServerKey().c_str() );
+    syslog( LOG_INFO, "sslhost set to %s", getSSLHost().c_str() );
+
 }
 
 void ConfigParser::setMongoHost( std::string value )
@@ -266,6 +283,48 @@ std::string ConfigParser::getJabberHost()
         abort();
     }
     return jabberhost;
+}
+
+void ConfigParser::setServerCert( std::string value )
+{
+    servercert = value;
+}
+
+std::string ConfigParser::getServerCert()
+{
+    if ( servercert.empty() )
+    {
+        abort();
+    }
+    return servercert;
+}
+
+void ConfigParser::setServerKey( std::string value )
+{
+    serverkey = value;
+}
+
+std::string ConfigParser::getServerKey()
+{
+    if ( serverkey.empty() )
+    {
+        abort();
+    }
+    return serverkey;
+}
+
+void ConfigParser::setSSLHost( std::string value )
+{
+    sslhost = value;
+}
+
+std::string ConfigParser::getSSLHost()
+{
+    if ( sslhost.empty() )
+    {
+        abort();
+    }
+    return sslhost;
 }
 
 }

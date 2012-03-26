@@ -27,17 +27,17 @@ void Janitor::tidyUp()
         const std::string coll = parser->getreportColl();
         mongo::BSONObj p = cursor->next();
         status = p.getStringField( "status" );
-        found = status.find( "OK" );
+        found = status.find( "PROBLEM" );
         flapping = p.getBoolField( "flapping" );
         deltatime = time( 0 ) - p.getIntField( "new_timestamp" );
         problem = p.getStringField( "problem");
 
-        if( flapping && deltatime > 600 && found < status.npos )
+        if( flapping && deltatime > 600 && found == 0 )
         {
-
             mongo::BSONObjBuilder* b;
             b = new mongo::BSONObjBuilder;
             b->append( "flapping" , !flapping );
+            b->append( "status", "OK" );
             mongo::BSONObj tp = b->obj();
 
             c->update(  coll,

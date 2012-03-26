@@ -185,7 +185,7 @@ std::string Observer::createAnswer200()
     answer.append( "\r\n" );
     answer.append( "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n" );
     answer.append( "<body>\r\n" );
-    answer.append( "<p id=\"1\" problem=\"test\"/>\r\n" );
+    answer.append( getReports() );
     answer.append( "</body>" );
     return answer;
 }

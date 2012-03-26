@@ -96,7 +96,7 @@ std::string Observer::getReports()
 {
     std::stringstream report;
     int i = 1;
-    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( "zabbix.reports", mongo::BSONObj() );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->getreportColl(), mongo::BSONObj() );
     while( cursor->more() )
     {
         mongo::BSONObj p = cursor->next();

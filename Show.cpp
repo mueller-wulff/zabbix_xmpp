@@ -11,7 +11,7 @@ Show::Show( Client* _j, ConfigParser* _parser, mongo::DBClientConnection* _c )
 void Show::showCommands( const Message& command )
 {
     std::string commandList;
-    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( "zabbix.commands", mongo::BSONObj() );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->getcommandsColl(), mongo::BSONObj() );
 
     while( cursor->more() )
     {

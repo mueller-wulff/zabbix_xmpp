@@ -30,6 +30,9 @@ private:
     std::string servercert;
     std::string serverkey;
     std::string sslhost;
+    std::string reportColl;
+    std::string adminColl;
+    std::string commandsColl;
     int janTimeout;
 
 public:
@@ -86,6 +89,13 @@ public:
     void setSSLHost( std::string value );
 
     std::string getSSLHost();
+
+    std::string getreportColl();
+
+    std::string getadminColl();
+
+    std::string getcommandsColl();
+
 };
 
 }

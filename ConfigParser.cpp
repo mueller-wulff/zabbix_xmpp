@@ -327,4 +327,19 @@ std::string ConfigParser::getSSLHost()
     return sslhost;
 }
 
+std::string ConfigParser::getreportColl()
+{
+    return mongodb + ".reports";
+}
+
+std::string ConfigParser::getadminColl()
+{
+    return mongodb + ".admins";
+}
+
+std::string ConfigParser::getcommandsColl()
+{
+    return mongodb + ".commands";
+}
+
 }

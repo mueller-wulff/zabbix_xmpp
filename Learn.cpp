@@ -27,7 +27,7 @@ int Learn::learnCommand( const Message& command )
     b.append( "name", commandName.c_str() );
     b.append( "type", commandType.c_str() );
     mongo::BSONObj p = b.obj();
-    c->insert( "zabbix.commands", p );
+    c->insert( parser->getcommandsColl(), p );
 
     std::string info;
     info.append( "\nI learned the following:\nCommand-Name: " );

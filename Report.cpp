@@ -18,7 +18,7 @@ void Report::reportIssue( const Message& command )
 
 void Report::sendReport( std::string report )
 {
-    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( "zabbix.admins", mongo::BSONObj() );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->getadminColl() , mongo::BSONObj() );
 
     while( cursor->more() )
     {
@@ -71,7 +71,7 @@ int Report::getTimestamp()
 
 bool Report::storeReport( std::string report, std::string status )
 {
-    const std::string coll = "zabbix.reports";
+    const std::string coll = parser->getreportColl();
     std::string oldstatus;
     time_t deltatime = 0;
     time_t olddeltatime = 0;
@@ -79,7 +79,7 @@ bool Report::storeReport( std::string report, std::string status )
     time_t oldtime = time( 0 );
     bool flapping = 0;
 
-    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( "zabbix.reports", QUERY( "problem"<<report.c_str() ) );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->getreportColl(), QUERY( "problem"<<report.c_str() ) );
     while( cursor->more() )
     {
         mongo::BSONObj p = cursor->next();

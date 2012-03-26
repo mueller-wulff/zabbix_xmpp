@@ -133,11 +133,12 @@ void CommandHandler::initCommandArr()
 
 bool CommandHandler::auth( const Message& command )
 {
-    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( "zabbix.admins", mongo::BSONObj() );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->getadminColl(), mongo::BSONObj() );
     while( cursor->more() )
     {
         mongo::BSONObj currentAdmin = cursor->next();
         std::string username = command.from().username();
+
         if( username.compare( 0, username.length(), currentAdmin.getStringField( "name" ) ) == 0 )
         {
             return true;

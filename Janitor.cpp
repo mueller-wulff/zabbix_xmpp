@@ -21,10 +21,10 @@ void Janitor::tidyUp()
     time_t now = time( 0 );
     time_t deltatime;
 
-    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( "zabbix.reports", mongo::BSONObj() );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->getreportColl(), mongo::BSONObj() );
     while( cursor->more() )
     {
-        const std::string coll = "zabbix.reports";
+        const std::string coll = parser->getreportColl();
         mongo::BSONObj p = cursor->next();
         status = p.getStringField( "status" );
         found = status.find( "OK" );
@@ -53,14 +53,14 @@ void Janitor::tidyUp()
 
 void Janitor::sendOK( std::string problem )
 {
-    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( "zabbix.admins", mongo::BSONObj() );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->getadminColl(), mongo::BSONObj() );
     problem.append( "\nOK\nflapping is over\n");
 
     while( cursor->more() )
     {
         mongo::BSONObj p = cursor->next();
         std::string currentAdmin = p.getStringField( "name" );
-        currentAdmin.append( "@localhost" );
+        currentAdmin.append( parser->getJabberHost() );
         Message::MessageType type;
         Message msg( type, currentAdmin, problem.c_str() );
         j->send( msg );

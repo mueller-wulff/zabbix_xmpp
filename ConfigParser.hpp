@@ -35,6 +35,7 @@ private:
     std::string commandsColl;
     int janTimeout;
     time_t flaptime;
+    std::string sslpword;
 
 public:
     ConfigParser();
@@ -94,6 +95,10 @@ public:
     void setFlapTime( std::string value );
 
     time_t getFlapTime();
+
+    void setSSLPword( std::string value );
+
+    std::string getSSLPword();
 
     std::string getreportColl();
 

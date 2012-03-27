@@ -103,13 +103,21 @@ std::string Observer::getReports()
         std::string status = p.getStringField( "status" );
         if( status.find( "PROBLEM" ) == 0 )
         {
-            report  << "\t<p id=\""
-                    << i
-                    << "\" "
-                    << "problem=\""
-                    << p.getStringField( "problem" )
-                    << "\"/>\r\n";
-            i++;
+            std::string problem = p.getStringField( "problem" );
+            size_t found = problem.rfind( "on server " );
+            if( found < problem.npos )
+            {
+                report  << "\t<issue id=\""
+                        << i
+                        << "    \" "
+                        << "host=\""
+                        <<  problem.substr( found + 10 )
+                        << "\" "
+                        << "problem=\""
+                        << problem.substr( 0, found )
+                        << "\"/>\r\n";
+                i++;
+            }
         }
     }
     return report.str();

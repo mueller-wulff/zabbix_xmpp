@@ -34,6 +34,8 @@ private:
     ConfigParser* parser;
 
     mongo::DBClientConnection* c;
+
+    time_t flaptime;
 };
 
 }

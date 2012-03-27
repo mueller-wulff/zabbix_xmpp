@@ -10,6 +10,7 @@ Janitor::Janitor( Client* _j, ConfigParser* _parser, mongo::DBClientConnection* 
     j = _j;
     c = _c;
     parser = _parser;
+    flaptime = parser->getFlapTime();
 }
 
 void Janitor::tidyUp()
@@ -18,7 +19,7 @@ void Janitor::tidyUp()
     std::string status;
     std::string problem;
     bool flapping;
-    time_t now = time( 0 );
+    //time_t now = time( 0 );
     time_t deltatime;
 
     mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->getreportColl(), mongo::BSONObj() );
@@ -32,7 +33,7 @@ void Janitor::tidyUp()
         deltatime = time( 0 ) - p.getIntField( "new_timestamp" );
         problem = p.getStringField( "problem");
 
-        if( flapping && deltatime > 600 && found == 0 )
+        if( flapping && deltatime > flaptime && found == 0 )
         {
             mongo::BSONObjBuilder* b;
             b = new mongo::BSONObjBuilder;

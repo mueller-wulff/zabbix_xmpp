@@ -34,6 +34,7 @@ private:
     std::string adminColl;
     std::string commandsColl;
     int janTimeout;
+    time_t flaptime;
 
 public:
     ConfigParser();
@@ -89,6 +90,10 @@ public:
     void setSSLHost( std::string value );
 
     std::string getSSLHost();
+
+    void setFlapTime( std::string value );
+
+    time_t getFlapTime();
 
     std::string getreportColl();
 

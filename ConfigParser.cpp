@@ -172,6 +172,10 @@ void ConfigParser::checkKey( std::string key, std::string value )
     {
         setSSLHost( value );
     }
+    if ( ( key.compare( 0, key.length(), "flaptime" ) ) == 0 )
+    {
+        setFlapTime( value );
+    }
 }
 
 void ConfigParser::log()
@@ -184,7 +188,7 @@ void ConfigParser::log()
     syslog( LOG_INFO, "servercert set to %s", getServerCert().c_str() );
     syslog( LOG_INFO, "serverkey set to %s", getServerKey().c_str() );
     syslog( LOG_INFO, "sslhost set to %s", getSSLHost().c_str() );
-
+    syslog( LOG_INFO, "flaptime set to %d", getFlapTime() );
 }
 
 void ConfigParser::setMongoHost( std::string value )
@@ -316,6 +320,16 @@ std::string ConfigParser::getServerKey()
 void ConfigParser::setSSLHost( std::string value )
 {
     sslhost = value;
+}
+
+void ConfigParser::setFlapTime( std::string value )
+{
+    flaptime = ( time_t ) atoi( value.c_str() );
+}
+
+time_t ConfigParser::getFlapTime()
+{
+    return flaptime;
 }
 
 std::string ConfigParser::getSSLHost()

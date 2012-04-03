@@ -15,24 +15,14 @@ $| = 1;
 
 my $rcpt = shift( @ARGV );
 
-my $msg = shift( @ARGV );
-$msg = "!report \n";
+my $msg = "!report";
+$msg .= " " . shift( @ARGV );
 for ( @ARGV )
 {
     my $arg = $_;
 
-    if (    $arg =~ /Trigger:/ 
-         || $arg =~ /Trigger status:/ 
-         || $arg =~ /Trigger severity:/
-       )
-    {
-        $msg = $msg . " \n";
-    }
-    else
-    {
-        $msg = $msg . " ";
-    }
-    $msg = $msg . $arg;
+    $msg .= " ";
+    $msg .= $arg;
 }
 
 print($msg);

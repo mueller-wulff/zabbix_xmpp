@@ -24,6 +24,10 @@ void Report::sendReport( std::string report )
     {
         mongo::BSONObj p = cursor->next();
         std::string currentAdmin = p.getStringField( "name" );
+        if( currentAdmin == "notifier")
+        {
+            continue;
+        }
         currentAdmin.append( "@" );
         currentAdmin.append( parser->getJabberHost() );
         Message::MessageType type;
@@ -34,19 +38,21 @@ void Report::sendReport( std::string report )
 
 bool Report::checkReport( std::string report )
 {
+    size_t found;
     time_t deltatime = 0;
     std::string status;
-    size_t found = report.find( "OK" );
 
+    found = report.find( "OK" );
     if ( found < report.npos )
     {
         status = "OK";
     }
-    else
+
+    found = report.find( "PROBLEM" );
+    if ( found < report.npos )
     {
         status = "PROBLEM";
     }
-
     return analyzeReport( report, status );
 }
 
@@ -54,12 +60,13 @@ bool Report::analyzeReport( std::string report, std::string status )
 {
     size_t found;
     std::string tempstr;
-    found = report.find_first_of( ":" );
-    tempstr = report.substr( found + 1, report.npos );
-    found = tempstr.find_first_of( ":" );
-    tempstr = tempstr.substr( 0, found );
-    found = tempstr.find_last_of( " " );
-    tempstr = tempstr.substr( 0, found );
+
+    found = report.find_first_of( "!report" );
+    if ( found < report.npos )
+    {
+        tempstr = report.substr( sizeof("!report ") , report.npos );
+    }
+
     return storeReport( tempstr, status );
 }
 
@@ -73,13 +80,22 @@ bool Report::storeReport( std::string report, std::string status )
 {
     const std::string coll = parser->getreportColl();
     std::string oldstatus;
+    size_t found = report.find( " : " );
+
+    std::string problem;
+    std::string host;
+
+    host = report.substr( status.size(), found - status.size() );
+
+    problem = report.substr( found + 3, report.npos );
+
     time_t deltatime = 0;
     time_t olddeltatime = 0;
     time_t newtime = time( 0 );
     time_t oldtime = time( 0 );
     bool flapping = 0;
 
-    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->getreportColl(), QUERY( "problem"<<report.c_str() ) );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->getreportColl(), QUERY("problem"<<problem.c_str()<<"host"<<host.c_str()) );
     while( cursor->more() )
     {
         mongo::BSONObj p = cursor->next();
@@ -107,7 +123,7 @@ bool Report::storeReport( std::string report, std::string status )
     b->append( "status", status.c_str() );
     mongo::BSONObj p = b->obj();
     c->update(  coll,
-                mongo::BSONObjBuilder().append("problem", report.c_str() ).obj(),
+                mongo::BSONObjBuilder().append("host", host.c_str() ).append("problem", problem.c_str() ).obj(),
                 BSON( "$set" << p),
                 1, 0
              );

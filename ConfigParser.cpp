@@ -128,57 +128,69 @@ void ConfigParser::checkKey( std::string key, std::string value )
     if ( ( key.compare( 0, key.length(), "mongohost" )) == 0 )
     {
         setMongoHost( value );
+        return;
     }
 
     if ( ( key.compare( 0, key.length(), "mongodb" ) ) == 0 )
     {
         setMongoDB( value );
+        return;
     }
 
     if ( ( key.compare( 0, key.length(), "jid" ) ) == 0 )
     {
         setJID( value );
+        return;
     }
 
     if ( ( key.compare( 0, key.length(), "jidpw" ) ) == 0 )
     {
         setJIDPW( value );
+        return;
     }
 
     if ( ( key.compare( 0, key.length(), "scriptdir" ) ) == 0 )
     {
         setScriptDir( value );
+        return;
     }
 
     if ( ( key.compare( 0, key.length(), "jantimeout" ) ) == 0 )
     {
         setjanTimeout( value );
+        return;
     }
 
     if ( ( key.compare( 0, key.length(), "jabberhost" ) ) == 0 )
     {
         setJabberHost( value );
+        return;
     }
 
     if ( ( key.compare( 0, key.length(), "servercert" ) ) == 0 )
     {
         setServerCert( value );
+        return;
     }
     if ( ( key.compare( 0, key.length(), "serverkey" ) ) == 0 )
     {
         setServerKey( value );
+        return;
     }
     if ( ( key.compare( 0, key.length(), "sslhost" ) ) == 0 )
     {
         setSSLHost( value );
+        return;
     }
     if ( ( key.compare( 0, key.length(), "flaptime" ) ) == 0 )
     {
         setFlapTime( value );
+        return;
     }
     if ( ( key.compare( 0, key.length(), "sslpword" ) ) == 0 )
     {
         setSSLPword( value );
+        return;
     }
 }
 

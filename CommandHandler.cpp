@@ -8,12 +8,13 @@ CommandHandler::CommandHandler( Client* _j, ConfigParser* _parser )
     j = _j;
     parser = _parser;
     connectMongo();
-    show = new Show( j, parser, c );
+
+    show    = new Show( j, parser, c );
     execute = new Execute( j, parser, c );
-    learn = new Learn( j, parser, c );
-    report = new Report( j, parser, c );
-    help = new Help( j, parser, c );
-    forget = new Forget( j, parser, c );
+    learn   = new Learn( j, parser, c );
+    report  = new Report( j, parser, c );
+    help    = new Help( j, parser, c );
+    forget  = new Forget( j, parser, c );
     janitor = new Janitor( j, parser, c );
 
     initCommandArr();

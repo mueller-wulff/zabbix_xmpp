@@ -80,13 +80,14 @@ void Observer::observe()
             if( FD_ISSET( afd, &fds ) && BIO_do_accept( abio ) > 0 )
             {
                 int r;
-                char rbuf[4096];
+                //char rbuf[4096];
                 client = BIO_pop( abio );
                 ssl = SSL_new( ctx );
                 SSL_set_accept_state( ssl );
                 SSL_set_bio( ssl, client, client );
                 SSL_accept( ssl );
                 handleClient();
+                SSL_free( ssl );
             }
         }
     }

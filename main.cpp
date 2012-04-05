@@ -1,5 +1,6 @@
 #include "Observer.hpp"
 #include "ConfigParser.hpp"
+
 using namespace zabbix;
 
 int main ( int argc, char* argv[] )
@@ -13,6 +14,7 @@ int main ( int argc, char* argv[] )
     Observer* observer;
     observer = new Observer( parser );
     observer->run();
+
     delete observer;
     delete parser;
     return 0;

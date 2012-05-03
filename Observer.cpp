@@ -79,7 +79,7 @@ void Observer::observe()
         {
             if( FD_ISSET( afd, &fds ) && BIO_do_accept( abio ) > 0 )
             {
-                int r;
+                //int r;
                 //char rbuf[4096];
                 client = BIO_pop( abio );
                 ssl = SSL_new( ctx );
@@ -209,7 +209,7 @@ bool Observer::parseReq( std::string req )
         if( found == 0 )
         {
             std::string digest = line.substr( line.find_last_of( " " ) + 1, line.npos - 1 );
-            std::string ok = "test123:test";
+            std::string ok = parser->getSSLPword();
             std::string decoded = decodeDigest( digest );
             if( decoded.compare( 0, ok.length(), ok ) == 0 )
             {
@@ -235,7 +235,7 @@ std::string Observer::decodeDigest( std::string digest )
     BIO_set_flags( b64, BIO_FLAGS_BASE64_NO_NL );
     bmem = BIO_new_mem_buf( cdigest, length );
     bmem = BIO_push( b64, bmem );
-    int r = BIO_read( bmem, buffer, length );
+    BIO_read( bmem, buffer, length );
     BIO_free_all( bmem );
     std::string decoded = buffer;
     free(buffer);
@@ -246,10 +246,10 @@ std::string Observer::decodeDigest( std::string digest )
 void Observer::dropRights()
 {
     if (getuid() == 0) {
-    if (setgid( 1000 ) != 0)
-        printf("setgid: Unable to drop group privileges: %s", strerror(errno));
-    if (setuid( 1000 ) != 0)
-        printf("setuid: Unable to drop user privileges: %S", strerror(errno));
+        if (setgid( parser->getUID() ) != 0)
+            printf("setgid: Unable to drop group privileges: %s", strerror(errno));
+        if (setuid( parser->getUID() ) != 0)
+            printf("setuid: Unable to drop user privileges: %S", strerror(errno));
     }
 }
 

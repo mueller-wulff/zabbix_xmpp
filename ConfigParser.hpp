@@ -33,6 +33,7 @@ private:
     std::string reportColl;
     std::string adminColl;
     std::string commandsColl;
+    int uid;
     int janTimeout;
     time_t flaptime;
     std::string sslpword;
@@ -73,6 +74,10 @@ public:
     std::string getScriptDir();
 
     void setjanTimeout( std::string value );
+
+    int getUID();
+
+    void setUID( std::string value );
 
     int getjanTimeout();
 

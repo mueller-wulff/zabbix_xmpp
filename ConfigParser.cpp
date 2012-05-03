@@ -12,6 +12,8 @@ ConfigParser::ConfigParser()
 
     janTimeout = -2;
 
+    uid = 0;
+
 }
 
 void ConfigParser::parse( int &argc, char** &argv )
@@ -192,6 +194,11 @@ void ConfigParser::checkKey( std::string key, std::string value )
         setSSLPword( value );
         return;
     }
+    if ( ( key.compare( 0, key.length(), "uid" ) ) == 0 )
+    {
+        setUID( value );
+        return;
+    }
 }
 
 void ConfigParser::log()
@@ -290,6 +297,16 @@ int ConfigParser::getjanTimeout()
         abort();
     }
     return janTimeout;
+}
+
+void ConfigParser::setUID( std::string value )
+{
+    uid = atoi( value.c_str() );
+}
+
+int ConfigParser::getUID()
+{
+    return uid;
 }
 
 void ConfigParser::setJabberHost( std::string value )

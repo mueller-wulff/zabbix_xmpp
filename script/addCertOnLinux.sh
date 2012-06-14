@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# usage:  import-cert.sh remote.host.name [port]
+# usage:  addCertOnLinux.sh remote.host.name [port]
 #
 REMHOST=$1
 REMPORT=${2:-443}

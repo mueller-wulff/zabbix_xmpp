@@ -12,26 +12,16 @@ use warnings;
 
 $| = 1;
 
+my $msg ="!report";
 
 my $rcpt = shift( @ARGV );
 
-my $msg = "!report";
-$msg .= " " . shift( @ARGV );
 for ( @ARGV )
 {
-    my $arg = $_;
-
     $msg .= " ";
-    $msg .= $arg;
+    $msg .= $_;
 }
 
-print($msg);
-#totally reasonably way
-#to strip of first char
-$msg = reverse($msg);
-chomp($msg);
-#chop($msg);
-$msg = reverse($msg);
 my @res;
 
 my $host = 'localhost';
@@ -49,7 +39,7 @@ my $cnx = new Net::XMPP::Client();
     connectiontype  => 'tcpip',
 );
 
-my $user        = 'admin';
+my $user        = 'zabbix';
 my $password    = 'test123';
 my $resource    = 'roaXMPP';
 

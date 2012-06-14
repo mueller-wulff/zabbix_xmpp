@@ -70,7 +70,6 @@ void Observer::observe()
         {
             break;
         }
-
         if (select(afd+1, &fds, NULL, NULL, &timeout) == -1)
         {
             //abort();

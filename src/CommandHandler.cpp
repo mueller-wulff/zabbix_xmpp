@@ -48,7 +48,7 @@ void CommandHandler::checkAuth( const Message& command )
     else
     {
         Message::MessageType type;
-        std::string helpStr = "Your are not allowed to do this!";
+        std::string helpStr = "You are are not allowed to do this!";
         Message msg( type,  command.from(), helpStr );
         j->send( msg );
     }

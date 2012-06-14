@@ -30,7 +30,7 @@ Server::Server( Config* _config )
 
     if( BIO_do_accept( abio ) <= 0 )
     {
-        fprintf(stderr, "Error setting up accept\n");
+        std::cerr << "Error setting up accept\n" << std::endl;
         ERR_print_errors_fp(stderr);
         abort();
     }
@@ -46,26 +46,18 @@ void Server::run()
     {
         FD_ZERO( &fds );
         FD_SET( afd, &fds );
-        struct timeval timeout;
-        timeout.tv_sec = 1;
-        timeout.tv_usec = 0;
 
-        if (select(afd+1, &fds, NULL, NULL, &timeout ) == -1)
+        select( afd+1, &fds, NULL, NULL, 0 );
+
+        if( FD_ISSET( afd, &fds ) && BIO_do_accept( abio ) > 0 )
         {
-            //abort();
-        }
-        else
-        {
-            if( FD_ISSET( afd, &fds ) && BIO_do_accept( abio ) > 0 )
-            {
-                client = BIO_pop( abio );
-                ssl = SSL_new( ctx );
-                SSL_set_accept_state( ssl );
-                SSL_set_bio( ssl, client, client );
-                SSL_accept( ssl );
-                handleClient();
-                SSL_free( ssl );
-            }
+            client = BIO_pop( abio );
+            ssl = SSL_new( ctx );
+            SSL_set_accept_state( ssl );
+            SSL_set_bio( ssl, client, client );
+            SSL_accept( ssl );
+            handleClient();
+            SSL_free( ssl );
         }
     }
 }
@@ -93,7 +85,7 @@ std::string Server::getReports()
                     << "problem=\""
                     << problem
                     << "\"/>\r\n";
-            i++;
+            ++i;
         }
     }
     return report.str();
@@ -178,7 +170,6 @@ bool Server::configeq( std::string req )
 {
     std::stringstream reqStream;
     std::string line;
-    bool returner = false;
     reqStream << req;
     while( getline( reqStream, line ) )
     {
@@ -190,15 +181,15 @@ bool Server::configeq( std::string req )
             std::string decoded = decodeDigest( digest );
             if( decoded.compare( 0, ok.length(), ok ) == 0 )
             {
-                returner = true;
+                return true;
             }
             else
             {
-                returner = false;
+                return false;
             }
         }
     }
-    return returner;
+    return false;
 }
 
 std::string Server::decodeDigest( std::string digest )

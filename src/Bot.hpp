@@ -22,25 +22,20 @@ namespace zabbix
 class Bot : public MessageHandler, LogHandler, ConnectionListener
 {
 public:
-   Bot( Config* _config );
+    Bot( Config* _config );
 
     ~Bot();
 
-   void connectToXMPP( Config* _config );
+    void connectToXMPP( Config* _config );
+    void initCommandHandler( Client *j, Config* _config );
 
-   void initCommandHandler( Client *j, Config* _config );
+    virtual void onConnect();
+    virtual void onDisconnect( ConnectionError e );
+    virtual bool onTLSConnect( const CertInfo& info );
+    virtual void handleMessage( const Message& stanza, MessageSession* session = 0 );
+    virtual void handleLog( LogLevel level, LogArea area, const std::string& message );
 
-   virtual void onConnect();
-
-   virtual void onDisconnect( ConnectionError e );
-
-   virtual bool onTLSConnect( const CertInfo& info );
-
-   virtual void handleMessage( const Message& stanza, MessageSession* session = 0 );
-
-   virtual void handleLog( LogLevel level, LogArea area, const std::string& message );
-
-   void tidyUp();
+    void tidyUp();
 
 private:
    Client* j;

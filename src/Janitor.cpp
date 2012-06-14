@@ -19,7 +19,6 @@ void Janitor::tidyUp()
     std::string status;
     std::string problem;
     bool flapping;
-    //time_t now = time( 0 );
     time_t deltatime;
 
     mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( config->reportColl, mongo::BSONObj() );

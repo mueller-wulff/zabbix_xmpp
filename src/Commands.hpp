@@ -12,7 +12,7 @@
 #include <string>
 #include <syslog.h>
 
-#include "ConfigParser.hpp"
+#include "Config.hpp"
 
 using namespace gloox;
 
@@ -23,11 +23,11 @@ class Commands
 {
 
 public:
-    Commands( Client* _j, ConfigParser* _parser, mongo::DBClientConnection* _c );
+    Commands( Client* _j, Config* _parser, mongo::DBClientConnection* _c );
 
     Client* j;
 
-    ConfigParser* parser;
+    Config* parser;
 
     mongo::DBClientConnection* c;
 

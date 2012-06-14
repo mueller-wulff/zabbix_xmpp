@@ -3,7 +3,7 @@
 namespace zabbix
 {
 
-Forget::Forget( Client* _j, ConfigParser* _parser, mongo::DBClientConnection* _c )
+Forget::Forget( Client* _j, Config* _parser, mongo::DBClientConnection* _c )
     : Commands( _j, _parser, _c )
 {
 }
@@ -13,7 +13,7 @@ void Forget::forgetCommand( const Message& command )
     bool deleted = false;
     std::string answer;
 
-    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->getcommandsColl(), mongo::BSONObj() );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->commandsColl, mongo::BSONObj() );
 
     while( cursor->more() )
     {
@@ -22,7 +22,7 @@ void Forget::forgetCommand( const Message& command )
 
         if( todel.compare( 0, todel.length(), currentCommand.getStringField( "name" ) ) == 0 )
         {
-            c->remove( parser->getcommandsColl(), QUERY( "name" << currentCommand.getStringField( "name" ) ), true );
+            c->remove( parser->commandsColl, QUERY( "name" << currentCommand.getStringField( "name" ) ), true );
             deleted = true;
             answer.append( "I deleted " );
             answer.append( currentCommand.getStringField( "name" ) );

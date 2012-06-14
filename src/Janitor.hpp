@@ -11,7 +11,7 @@
 #include <iostream>
 #include <string>
 
-#include "ConfigParser.hpp"
+#include "Config.hpp"
 
 using namespace gloox;
 
@@ -22,7 +22,7 @@ class Janitor
 {
 
 public:
-    Janitor( Client* _j, ConfigParser* _parser, mongo::DBClientConnection* _c );
+    Janitor( Client* _j, Config* _parser, mongo::DBClientConnection* _c );
 
     void tidyUp();
 
@@ -31,7 +31,7 @@ private:
 
     Client* j;
 
-    ConfigParser* parser;
+    Config* parser;
 
     mongo::DBClientConnection* c;
 

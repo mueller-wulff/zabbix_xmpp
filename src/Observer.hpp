@@ -22,7 +22,7 @@
 
 #include "client/dbclient.h"
 
-#include "ConfigParser.hpp"
+#include "Config.hpp"
 #include "Bot.hpp"
 
 
@@ -34,12 +34,12 @@ namespace zabbix
 class Observer
 {
 public:
-    Observer( ConfigParser* _parser );
+    Observer( Config* _parser );
 
     void run();
 
 private:
-    ConfigParser* parser;
+    Config* parser;
     mongo::DBClientConnection *c;
     pid_t pid;
     int status;

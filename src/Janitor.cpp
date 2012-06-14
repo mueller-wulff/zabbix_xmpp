@@ -5,12 +5,12 @@ using namespace gloox;
 namespace zabbix
 {
 
-Janitor::Janitor( Client* _j, ConfigParser* _parser, mongo::DBClientConnection* _c )
+Janitor::Janitor( Client* _j, Config* _parser, mongo::DBClientConnection* _c )
 {
     j = _j;
     c = _c;
     parser = _parser;
-    flaptime = parser->getFlapTime();
+    flaptime = parser->flaptime;
 }
 
 void Janitor::tidyUp()
@@ -22,10 +22,10 @@ void Janitor::tidyUp()
     //time_t now = time( 0 );
     time_t deltatime;
 
-    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->getreportColl(), mongo::BSONObj() );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->reportColl, mongo::BSONObj() );
     while( cursor->more() )
     {
-        const std::string coll = parser->getreportColl();
+        const std::string coll = parser->reportColl;
         mongo::BSONObj p = cursor->next();
         status = p.getStringField( "status" );
         found = status.find( "PROBLEM" );
@@ -54,14 +54,14 @@ void Janitor::tidyUp()
 
 void Janitor::sendOK( std::string problem )
 {
-    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->getadminColl(), mongo::BSONObj() );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->adminColl, mongo::BSONObj() );
     problem.append( "\nOK\nflapping is over\n");
 
     while( cursor->more() )
     {
         mongo::BSONObj p = cursor->next();
         std::string currentAdmin = p.getStringField( "name" );
-        currentAdmin.append( parser->getJabberHost() );
+        currentAdmin.append( parser->jabberHost );
         Message::MessageType type;
         Message msg( type, currentAdmin, problem.c_str() );
         j->send( msg );

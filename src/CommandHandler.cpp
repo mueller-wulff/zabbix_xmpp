@@ -3,7 +3,7 @@
 namespace zabbix
 {
 
-CommandHandler::CommandHandler( Client* _j, ConfigParser* _parser )
+CommandHandler::CommandHandler( Client* _j, Config* _parser )
 {
     j = _j;
     parser = _parser;
@@ -36,7 +36,7 @@ CommandHandler::~CommandHandler()
 void CommandHandler::connectMongo()
 {
     c = new mongo::DBClientConnection( true,0 ,0 );
-    c->connect( parser->getMongoHost() );
+    c->connect( parser->mongohost );
 }
 
 void CommandHandler::checkAuth( const Message& command )
@@ -142,7 +142,7 @@ void CommandHandler::initCommandArr()
 
 bool CommandHandler::auth( const Message& command )
 {
-    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->getadminColl(), mongo::BSONObj() );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->adminColl, mongo::BSONObj() );
     while( cursor->more() )
     {
         mongo::BSONObj currentAdmin = cursor->next();

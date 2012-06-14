@@ -12,7 +12,7 @@
 #include <gloox/message.h>
 
 #include "CommandHandler.hpp"
-#include "ConfigParser.hpp"
+#include "Config.hpp"
 
 using namespace gloox;
 
@@ -22,13 +22,13 @@ namespace zabbix
 class Bot : public MessageHandler, LogHandler, ConnectionListener
 {
 public:
-   Bot( ConfigParser* _parser );
+   Bot( Config* _parser );
 
     ~Bot();
 
-   void connectToXMPP( ConfigParser* _parser );
+   void connectToXMPP( Config* _parser );
 
-   void initCommandHandler( Client *j, ConfigParser* _parser );
+   void initCommandHandler( Client *j, Config* _parser );
 
    virtual void onConnect();
 
@@ -45,7 +45,7 @@ public:
 private:
    Client* j;
    CommandHandler* comm;
-   ConfigParser* parser;
+   Config* parser;
    time_t starttime;
    int janTimeout;
 };

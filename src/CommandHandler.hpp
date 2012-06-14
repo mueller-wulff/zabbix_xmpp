@@ -11,7 +11,7 @@
 #include <iostream>
 #include <string>
 
-#include "ConfigParser.hpp"
+#include "Config.hpp"
 #include "Show.hpp"
 #include "Execute.hpp"
 #include "Learn.hpp"
@@ -30,7 +30,7 @@ namespace zabbix
 class CommandHandler
 {
 public:
-    CommandHandler( Client* _j, ConfigParser* _parser );
+    CommandHandler( Client* _j, Config* _parser );
 
     ~CommandHandler();
 
@@ -71,7 +71,7 @@ private:
 
     Janitor *janitor;
 
-    ConfigParser *parser;
+    Config *parser;
 
     std::string commands[COMMANDCOUNT];
 };

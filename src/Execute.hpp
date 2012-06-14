@@ -9,7 +9,7 @@ namespace zabbix
 class Execute : public Commands
 {
 public:
-    Execute( Client* _j, ConfigParser* _parser, mongo::DBClientConnection* _c );
+    Execute( Client* _j, Config* _parser, mongo::DBClientConnection* _c );
 
     int validateExecute( const Message& command );
 

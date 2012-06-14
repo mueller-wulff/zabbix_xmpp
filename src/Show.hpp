@@ -12,7 +12,7 @@ class Show : public Commands
 {
 
 public:
-    Show( Client* _j, ConfigParser* _parser, mongo::DBClientConnection* _c );
+    Show( Client* _j, Config* _parser, mongo::DBClientConnection* _c );
 
     void showCommands( const Message& command );
 

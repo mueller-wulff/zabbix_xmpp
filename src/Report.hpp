@@ -12,7 +12,7 @@ class Report : public Commands
 {
 
 public:
-    Report( Client* _j, ConfigParser* _parser, mongo::DBClientConnection* _c );
+    Report( Client* _j, Config* _parser, mongo::DBClientConnection* _c );
 
     void reportIssue( const Message& command );
 

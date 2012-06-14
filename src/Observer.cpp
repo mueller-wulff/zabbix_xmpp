@@ -2,20 +2,20 @@
 
 namespace zabbix
 {
-Observer::Observer( ConfigParser* _parser )
+Observer::Observer( Config* _parser )
 {
     parser = _parser;
 
     c = new mongo::DBClientConnection( true,0 ,0 );
-    c->connect( parser->getMongoHost() );
+    c->connect( parser->mongohost );
 
     SSL_library_init();
     SSL_load_error_strings();
     ERR_load_BIO_strings();
     ERR_load_SSL_strings();
-    cert = ( char* ) parser->getServerCert().c_str();
-    key  = ( char* ) parser->getServerKey().c_str();
-    host = ( char* ) parser->getSSLHost().c_str();
+    cert = ( char* ) parser->serverCert.c_str();
+    key  = ( char* ) parser->serverKey.c_str();
+    host = ( char* ) parser->sslHost.c_str();
 
     ctx = SSL_CTX_new(SSLv3_server_method());
     SSL_CTX_use_certificate_file(ctx, cert, SSL_FILETYPE_PEM);
@@ -96,7 +96,7 @@ std::string Observer::getReports()
 {
     std::stringstream report;
     int i = 1;
-    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->getreportColl(), mongo::BSONObj() );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->reportColl, mongo::BSONObj() );
     while( cursor->more() )
     {
         mongo::BSONObj p = cursor->next();
@@ -208,7 +208,7 @@ bool Observer::parseReq( std::string req )
         if( found == 0 )
         {
             std::string digest = line.substr( line.find_last_of( " " ) + 1, line.npos - 1 );
-            std::string ok = parser->getSSLPword();
+            std::string ok = parser->sslpword;
             std::string decoded = decodeDigest( digest );
             if( decoded.compare( 0, ok.length(), ok ) == 0 )
             {
@@ -245,9 +245,9 @@ std::string Observer::decodeDigest( std::string digest )
 void Observer::dropRights()
 {
     if (getuid() == 0) {
-        if (setgid( parser->getUID() ) != 0)
+        if (setgid( parser->uid ) != 0)
             printf("setgid: Unable to drop group privileges: %s", strerror(errno));
-        if (setuid( parser->getUID() ) != 0)
+        if (setuid( parser->uid ) != 0)
             printf("setuid: Unable to drop user privileges: %S", strerror(errno));
     }
 }

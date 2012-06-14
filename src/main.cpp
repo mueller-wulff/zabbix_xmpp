@@ -1,21 +1,21 @@
 #include "Observer.hpp"
-#include "ConfigParser.hpp"
+#include "Config.hpp"
+#include "Config.hpp"
 
 using namespace zabbix;
 
 int main ( int argc, char* argv[] )
 {
-    ConfigParser * parser;
-    parser = new ConfigParser;
-
-    parser->parse( argc, argv );
-    parser->log();
+    Config * config;
+    config = new Config();
+    config->load( "config/bot.lua" );
 
     Observer* observer;
-    observer = new Observer( parser );
+    observer = new Observer( config );
     observer->run();
 
     delete observer;
-    delete parser;
+    delete config;
+
     return 0;
 }

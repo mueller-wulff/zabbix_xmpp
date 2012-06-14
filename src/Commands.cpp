@@ -3,7 +3,7 @@
 namespace zabbix
 {
 
-Commands::Commands( Client* _j, ConfigParser* _parser, mongo::DBClientConnection* _c )
+Commands::Commands( Client* _j, Config* _parser, mongo::DBClientConnection* _c )
 {
     j = _j;
     c = _c;

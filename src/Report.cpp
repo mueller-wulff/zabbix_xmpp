@@ -4,8 +4,8 @@
 namespace zabbix
 {
 
-Report::Report( Client* _j, Config* _parser, mongo::DBClientConnection* _c )
-    : Commands( _j, _parser, _c )
+Report::Report( Client* _j, Config* _config, mongo::DBClientConnection* _c )
+    : Commands( _j, _config, _c )
 {
 }
 
@@ -18,7 +18,7 @@ void Report::reportIssue( const Message& command )
 
 void Report::sendReport( std::string report )
 {
-    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->adminColl, mongo::BSONObj() );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( config->adminColl, mongo::BSONObj() );
 
     while( cursor->more() )
     {
@@ -29,7 +29,7 @@ void Report::sendReport( std::string report )
             continue;
         }
         currentAdmin.append( "@" );
-        currentAdmin.append( parser->jabberHost );
+        currentAdmin.append( config->jabberHost );
         Message::MessageType type;
         Message msg( type, currentAdmin, report.c_str() );
         j->send( msg );
@@ -78,7 +78,7 @@ int Report::getTimestamp()
 
 bool Report::storeReport( std::string report, std::string status )
 {
-    const std::string coll = parser->reportColl;
+    const std::string coll = config->reportColl;
     std::string oldstatus;
     size_t found = report.find( " : " );
 
@@ -95,7 +95,7 @@ bool Report::storeReport( std::string report, std::string status )
     time_t oldtime = time( 0 );
     bool flapping = 0;
 
-    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->reportColl, QUERY("problem"<<problem.c_str()<<"host"<<host.c_str()) );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( config->reportColl, QUERY("problem"<<problem.c_str()<<"host"<<host.c_str()) );
     while( cursor->more() )
     {
         mongo::BSONObj p = cursor->next();

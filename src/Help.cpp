@@ -3,8 +3,8 @@
 namespace zabbix
 {
 
-Help::Help( Client* _j, Config* _parser, mongo::DBClientConnection* _c )
-    : Commands( _j, _parser, _c )
+Help::Help( Client* _j, Config* _config, mongo::DBClientConnection* _c )
+    : Commands( _j, _config, _c )
 {
     initCommandArr();
 }

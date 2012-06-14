@@ -3,19 +3,19 @@
 namespace zabbix
 {
 
-CommandHandler::CommandHandler( Client* _j, Config* _parser )
+CommandHandler::CommandHandler( Client* _j, Config* _config )
 {
     j = _j;
-    parser = _parser;
+    config = _config;
     connectMongo();
 
-    show    = new Show( j, parser, c );
-    execute = new Execute( j, parser, c );
-    learn   = new Learn( j, parser, c );
-    report  = new Report( j, parser, c );
-    help    = new Help( j, parser, c );
-    forget  = new Forget( j, parser, c );
-    janitor = new Janitor( j, parser, c );
+    show    = new Show( j, config, c );
+    execute = new Execute( j, config, c );
+    learn   = new Learn( j, config, c );
+    report  = new Report( j, config, c );
+    help    = new Help( j, config, c );
+    forget  = new Forget( j, config, c );
+    janitor = new Janitor( j, config, c );
 
     initCommandArr();
 }
@@ -36,7 +36,7 @@ CommandHandler::~CommandHandler()
 void CommandHandler::connectMongo()
 {
     c = new mongo::DBClientConnection( true,0 ,0 );
-    c->connect( parser->mongohost );
+    c->connect( config->mongohost );
 }
 
 void CommandHandler::checkAuth( const Message& command )
@@ -142,7 +142,7 @@ void CommandHandler::initCommandArr()
 
 bool CommandHandler::auth( const Message& command )
 {
-    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->adminColl, mongo::BSONObj() );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( config->adminColl, mongo::BSONObj() );
     while( cursor->more() )
     {
         mongo::BSONObj currentAdmin = cursor->next();

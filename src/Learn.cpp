@@ -3,8 +3,8 @@
 namespace zabbix
 {
 
-Learn::Learn( Client* _j, Config* _parser, mongo::DBClientConnection* _c )
-    : Commands( _j, _parser, _c )
+Learn::Learn( Client* _j, Config* _config, mongo::DBClientConnection* _c )
+    : Commands( _j, _config, _c )
 {
 }
 
@@ -27,7 +27,7 @@ int Learn::learnCommand( const Message& command )
     b.append( "name", commandName.c_str() );
     b.append( "type", commandType.c_str() );
     mongo::BSONObj p = b.obj();
-    c->insert( parser->commandsColl, p );
+    c->insert( config->commandsColl, p );
 
     std::string info;
     info.append( "\nI learned the following:\nCommand-Name: " );

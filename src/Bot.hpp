@@ -22,13 +22,13 @@ namespace zabbix
 class Bot : public MessageHandler, LogHandler, ConnectionListener
 {
 public:
-   Bot( Config* _parser );
+   Bot( Config* _config );
 
     ~Bot();
 
-   void connectToXMPP( Config* _parser );
+   void connectToXMPP( Config* _config );
 
-   void initCommandHandler( Client *j, Config* _parser );
+   void initCommandHandler( Client *j, Config* _config );
 
    virtual void onConnect();
 
@@ -45,7 +45,7 @@ public:
 private:
    Client* j;
    CommandHandler* comm;
-   Config* parser;
+   Config* config;
    time_t starttime;
    int janTimeout;
 };

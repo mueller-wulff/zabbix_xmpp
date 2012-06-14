@@ -12,7 +12,7 @@ class Forget : public Commands
 {
 
 public:
-    Forget( Client* _j, Config* _parser, mongo::DBClientConnection* _c );
+    Forget( Client* _j, Config* _config, mongo::DBClientConnection* _c );
 
     void forgetCommand( const Message& command );
 

@@ -1,58 +1,43 @@
-#include "Observer.hpp"
+#include "Server.hpp"
 
 namespace zabbix
 {
-Observer::Observer( Config* _parser )
+Server::Server( Config* _config )
 {
-    parser = _parser;
+    config = _config;
 
     c = new mongo::DBClientConnection( true,0 ,0 );
-    c->connect( parser->mongohost );
+    c->connect( config->mongohost );
 
     SSL_library_init();
     SSL_load_error_strings();
     ERR_load_BIO_strings();
     ERR_load_SSL_strings();
-    cert = ( char* ) parser->serverCert.c_str();
-    key  = ( char* ) parser->serverKey.c_str();
-    host = ( char* ) parser->sslHost.c_str();
+    cert = ( char* ) config->serverCert.c_str();
+    key  = ( char* ) config->serverKey.c_str();
+    host = ( char* ) config->sslHost.c_str();
 
     ctx = SSL_CTX_new(SSLv3_server_method());
     SSL_CTX_use_certificate_file(ctx, cert, SSL_FILETYPE_PEM);
     SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM);
     abio = BIO_new_accept(host);
+
+
     if( abio == NULL )
     {
         abort();
     }
+
     if( BIO_do_accept( abio ) <= 0 )
     {
+        fprintf(stderr, "Error setting up accept\n");
+        ERR_print_errors_fp(stderr);
         abort();
     }
 }
 
-void Observer::run()
+void Server::run()
 {
-    while(1)
-    {
-        sleep(10);
-        if ( ( pid = fork() ) == 0 )
-        {
-            Bot *b;
-            dropRights();
-            b = new Bot( parser );
-            exit(0);
-        }
-        else
-        {
-            observe();
-        }
-    }
-}
-
-void Observer::observe()
-{
-
     fd_set fds;
 
     int afd = BIO_get_fd( abio,NULL );
@@ -65,12 +50,7 @@ void Observer::observe()
         timeout.tv_sec = 1;
         timeout.tv_usec = 0;
 
-        pid_t cpidstat = waitpid(pid, &status, WNOHANG);
-        if ( cpidstat == -1 )
-        {
-            break;
-        }
-        if (select(afd+1, &fds, NULL, NULL, &timeout) == -1)
+        if (select(afd+1, &fds, NULL, NULL, &timeout ) == -1)
         {
             //abort();
         }
@@ -78,8 +58,6 @@ void Observer::observe()
         {
             if( FD_ISSET( afd, &fds ) && BIO_do_accept( abio ) > 0 )
             {
-                //int r;
-                //char rbuf[4096];
                 client = BIO_pop( abio );
                 ssl = SSL_new( ctx );
                 SSL_set_accept_state( ssl );
@@ -92,11 +70,11 @@ void Observer::observe()
     }
 }
 
-std::string Observer::getReports()
+std::string Server::getReports()
 {
     std::stringstream report;
     int i = 1;
-    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->reportColl, mongo::BSONObj() );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( config->reportColl, mongo::BSONObj() );
     while( cursor->more() )
     {
         mongo::BSONObj p = cursor->next();
@@ -121,7 +99,7 @@ std::string Observer::getReports()
     return report.str();
 }
 
-void Observer::handleClient()
+void Server::handleClient()
 {
     int cfd = BIO_get_fd( client, NULL );
     int r = 1;
@@ -151,7 +129,7 @@ void Observer::handleClient()
     }
 
     if( !tempstr.empty() )
-        answer = parseReq( tempstr );
+        answer = configeq( tempstr );
 
     std::string write;
     if( answer )
@@ -169,7 +147,7 @@ void Observer::handleClient()
     }
 }
 
-std::string Observer::createAnswer401()
+std::string Server::createAnswer401()
 {
 
     std::string answer;
@@ -180,7 +158,7 @@ std::string Observer::createAnswer401()
     return answer;
 }
 
-std::string Observer::createAnswer200()
+std::string Server::createAnswer200()
 {
 
     std::string answer;
@@ -196,7 +174,7 @@ std::string Observer::createAnswer200()
     return answer;
 }
 
-bool Observer::parseReq( std::string req )
+bool Server::configeq( std::string req )
 {
     std::stringstream reqStream;
     std::string line;
@@ -208,7 +186,7 @@ bool Observer::parseReq( std::string req )
         if( found == 0 )
         {
             std::string digest = line.substr( line.find_last_of( " " ) + 1, line.npos - 1 );
-            std::string ok = parser->sslpword;
+            std::string ok = config->sslpword;
             std::string decoded = decodeDigest( digest );
             if( decoded.compare( 0, ok.length(), ok ) == 0 )
             {
@@ -223,7 +201,7 @@ bool Observer::parseReq( std::string req )
     return returner;
 }
 
-std::string Observer::decodeDigest( std::string digest )
+std::string Server::decodeDigest( std::string digest )
 {
     int length = digest.size() + 1;
     char *cdigest;
@@ -242,17 +220,7 @@ std::string Observer::decodeDigest( std::string digest )
     return decoded;
 }
 
-void Observer::dropRights()
-{
-    if (getuid() == 0) {
-        if (setgid( parser->uid ) != 0)
-            printf("setgid: Unable to drop group privileges: %s", strerror(errno));
-        if (setuid( parser->uid ) != 0)
-            printf("setuid: Unable to drop user privileges: %S", strerror(errno));
-    }
-}
-
-void Observer::readError( int r )
+void Server::readError( int r )
 {
     switch( SSL_get_error( ssl, r ) )
     {

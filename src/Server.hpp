@@ -1,5 +1,5 @@
-#ifndef ZABBIX_OBSERVER_HPP
-#define ZABBIX_OBSERVER_HPP
+#ifndef ZABBIX_SERVER_HPP
+#define ZABBIX_SERVER_HPP
 
 #include <gloox/client.h>
 #include <gloox/loghandler.h>
@@ -10,6 +10,8 @@
 #include "client/dbclient.h"
 #include <openssl/bio.h>
 #include <openssl/ssl.h>
+#include <openssl/err.h>
+
 #include <stdlib.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -31,15 +33,15 @@ using namespace gloox;
 namespace zabbix
 {
 
-class Observer
+class Server
 {
 public:
-    Observer( Config* _parser );
+    Server( Config* _config );
 
     void run();
 
 private:
-    Config* parser;
+    Config* config;
     mongo::DBClientConnection *c;
     pid_t pid;
     int status;
@@ -54,10 +56,8 @@ private:
     void handleClient();
     std::string createAnswer401();
     std::string createAnswer200();
-    bool parseReq( std::string req );
+    bool configeq( std::string req );
     std::string decodeDigest( std::string digest );
-    void dropRights();
-    void observe();
     std::string getReports();
     void readError( int r );
 };

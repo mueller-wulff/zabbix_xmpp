@@ -5,12 +5,12 @@ using namespace gloox;
 namespace zabbix
 {
 
-Bot::Bot( Config* _parser )
+Bot::Bot( Config* _config )
 {
     starttime = time( 0 );
-    parser = _parser;
-    janTimeout = parser->janTimeout;
-    connectToXMPP( parser );
+    config = _config;
+    janTimeout = config->janTimeout;
+    connectToXMPP( config );
 }
 
 Bot::~Bot()
@@ -18,13 +18,13 @@ Bot::~Bot()
     delete comm;
 }
 
-void Bot::connectToXMPP( Config* parser )
+void Bot::connectToXMPP( Config* config )
 {
-    JID jid( parser->jid );
+    JID jid( config->jid );
 
-    j = new Client( jid, parser->jidpw );
+    j = new Client( jid, config->jidpw );
 
-    initCommandHandler( j, parser );
+    initCommandHandler( j, config );
 
     j->registerConnectionListener( this );
     j->registerMessageHandler( this );
@@ -43,9 +43,9 @@ void Bot::connectToXMPP( Config* parser )
     }
 }
 
-void Bot::initCommandHandler( Client* j, Config* parser )
+void Bot::initCommandHandler( Client* j, Config* config )
 {
-    comm = new CommandHandler( j, parser );
+    comm = new CommandHandler( j, config );
 }
 
 void Bot::onConnect()

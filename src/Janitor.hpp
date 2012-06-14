@@ -22,7 +22,7 @@ class Janitor
 {
 
 public:
-    Janitor( Client* _j, Config* _parser, mongo::DBClientConnection* _c );
+    Janitor( Client* _j, Config* _config, mongo::DBClientConnection* _c );
 
     void tidyUp();
 
@@ -31,7 +31,7 @@ private:
 
     Client* j;
 
-    Config* parser;
+    Config* config;
 
     mongo::DBClientConnection* c;
 

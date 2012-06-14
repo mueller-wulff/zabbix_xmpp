@@ -2,8 +2,8 @@
 
 namespace zabbix
 {
-Execute::Execute( Client* _j, Config* _parser, mongo::DBClientConnection* _c )
-    : Commands( _j, _parser, _c )
+Execute::Execute( Client* _j, Config* _config, mongo::DBClientConnection* _c )
+    : Commands( _j, _config, _c )
 {
 
 }
@@ -20,7 +20,7 @@ int Execute::validateExecute( const Message& command )
         return -1;
     }
 
-    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->commandsColl, mongo::BSONObj() );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( config->commandsColl, mongo::BSONObj() );
     while( cursor->more() )
     {
         mongo::BSONObj p = cursor->next();
@@ -55,7 +55,7 @@ int Execute::validateExecute( const Message& command )
 
 std::string Execute::executeScript( std::string script )
 {
-    std::string myScriptFolder = parser->scriptDir;
+    std::string myScriptFolder = config->scriptDir;
     myScriptFolder.append( script.c_str() );
     FILE* pipe = popen( myScriptFolder.c_str(), "r" );
     if ( !pipe ) return "ERROR";

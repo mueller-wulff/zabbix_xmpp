@@ -2,8 +2,8 @@
 
 namespace zabbix
 {
-Show::Show( Client* _j, Config* _parser, mongo::DBClientConnection* _c )
-    : Commands( _j, _parser, _c )
+Show::Show( Client* _j, Config* _config, mongo::DBClientConnection* _c )
+    : Commands( _j, _config, _c )
 {
 
 }
@@ -11,7 +11,7 @@ Show::Show( Client* _j, Config* _parser, mongo::DBClientConnection* _c )
 void Show::showCommands( const Message& command )
 {
     std::string commandList;
-    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( parser->commandsColl, mongo::BSONObj() );
+    mongo::auto_ptr<mongo::DBClientCursor> cursor = c->query( config->commandsColl, mongo::BSONObj() );
 
     while( cursor->more() )
     {

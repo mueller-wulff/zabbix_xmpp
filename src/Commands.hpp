@@ -23,11 +23,11 @@ class Commands
 {
 
 public:
-    Commands( Client* _j, Config* _parser, mongo::DBClientConnection* _c );
+    Commands( Client* _j, Config* _config, mongo::DBClientConnection* _c );
 
     Client* j;
 
-    Config* parser;
+    Config* config;
 
     mongo::DBClientConnection* c;
 

@@ -12,7 +12,7 @@ class Learn : public Commands
 {
 
 public:
-    Learn( Client* _j, Config* _parser, mongo::DBClientConnection* _c );
+    Learn( Client* _j, Config* _config, mongo::DBClientConnection* _c );
 
     int learnCommand( const Message& command );
 

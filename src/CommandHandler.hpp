@@ -30,7 +30,7 @@ namespace zabbix
 class CommandHandler
 {
 public:
-    CommandHandler( Client* _j, Config* _parser );
+    CommandHandler( Client* _j, Config* _config );
 
     ~CommandHandler();
 
@@ -71,7 +71,7 @@ private:
 
     Janitor *janitor;
 
-    Config *parser;
+    Config *config;
 
     std::string commands[COMMANDCOUNT];
 };

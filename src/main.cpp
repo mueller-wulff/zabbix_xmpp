@@ -1,6 +1,5 @@
-#include "Observer.hpp"
 #include "Config.hpp"
-#include "Config.hpp"
+#include "Master.hpp"
 
 using namespace zabbix;
 
@@ -10,11 +9,11 @@ int main ( int argc, char* argv[] )
     config = new Config();
     config->load( "config/bot.lua" );
 
-    Observer* observer;
-    observer = new Observer( config );
-    observer->run();
+    Master *master;
+    master = new Master( config );
+    master->run();
 
-    delete observer;
+    delete master;
     delete config;
 
     return 0;

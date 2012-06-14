@@ -3,11 +3,11 @@
 namespace zabbix
 {
 
-Commands::Commands( Client* _j, Config* _parser, mongo::DBClientConnection* _c )
+Commands::Commands( Client* _j, Config* _config, mongo::DBClientConnection* _c )
 {
     j = _j;
     c = _c;
-    parser = _parser;
+    config = _config;
 
     openlog( "zabbix", LOG_PID, LOG_USER );
 }

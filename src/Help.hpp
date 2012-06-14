@@ -14,7 +14,7 @@ class Help : public Commands
 {
 
 public:
-    Help( Client* _j, Config* _parser, mongo::DBClientConnection* _c );
+    Help( Client* _j, Config* _config, mongo::DBClientConnection* _c );
 
     void helpCommand( const Message& command );
 

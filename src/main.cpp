@@ -7,7 +7,7 @@ int main ( int argc, char* argv[] )
 {
     Config * config;
     config = new Config();
-    config->load( "/etc/zabbix/bot.lua" );
+    config->load( "/etc/zabbix_bot/bot.lua" );
 
     Master *master;
     master = new Master( config );

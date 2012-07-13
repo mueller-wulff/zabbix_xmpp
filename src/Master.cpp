@@ -12,8 +12,6 @@ Master::~Master()
 {
     kill( pidJabber, SIGTERM );
     kill( pidServer, SIGTERM );
-    delete Bot;
-    delete Server;
 }
 
 void Master::run()
@@ -53,6 +51,7 @@ void Master::createJabber()
         Bot *b;
         dropRights();
         b = new Bot( config );
+        delete b;
         exit( 0 );
     }
 }
@@ -64,6 +63,7 @@ void Master::createServer()
         Server *server;
         server = new Server( config );
         server->run();
+        delete server;
         exit( 0 );
     }
 }

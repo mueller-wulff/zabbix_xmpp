@@ -34,7 +34,9 @@ public:
 
     ~CommandHandler();
 
-    void checkAuth( const Message& command );
+    bool checkAuth( const Message& command );
+
+    void validateCommand( const Message& command );
 
     void tidyUp();
 
@@ -42,8 +44,6 @@ private:
     void connectMongo();
 
     int searchCommand( std::string A[], int size, std::string target );
-
-    void validateCommand( const Message& command );
 
     void initCommandArr();
 

@@ -32,26 +32,19 @@ CommandHandler::~CommandHandler()
     delete c;
 }
 
-
 void CommandHandler::connectMongo()
 {
     c = new mongo::DBClientConnection( true,0 ,0 );
     c->connect( config->mongohost );
 }
 
-void CommandHandler::checkAuth( const Message& command )
+bool CommandHandler::checkAuth( const Message& command )
 {
     if( auth( command ) )
     {
-        validateCommand( command );
+        return true;
     }
-    else
-    {
-        Message::MessageType type;
-        std::string helpStr = "You are are not allowed to do this!";
-        Message msg( type,  command.from(), helpStr );
-        j->send( msg );
-    }
+    return false;
 }
 
 void CommandHandler::tidyUp()

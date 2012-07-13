@@ -65,9 +65,21 @@ bool Bot::onTLSConnect( const CertInfo& info )
 
 void Bot::handleMessage( const Message& stanza, MessageSession* session )
 {
+    bool authed;
     if ( !stanza.body().empty() )
     {
-        comm->checkAuth( stanza );
+        authed = comm->checkAuth( stanza );
+    }
+    if( authed )
+    {
+        comm->validateCommand( stanza );
+    }
+    else
+    {
+        Message::MessageType type;
+        std::string helpStr = "You are are not allowed to do this!";
+        Message msg( type,  stanza.from(), helpStr );
+        j->send( msg );
     }
 }
 

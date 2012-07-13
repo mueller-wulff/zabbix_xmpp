@@ -7,7 +7,7 @@ LD = g++
 WINDRES = windres
 
 INC = 
-CFLAGS =  -Wall
+CFLAGS =
 RESINC = 
 LIBDIR = 
 LIB = 
@@ -40,6 +40,8 @@ OBJ_DEBUG = $(OBJDIR_DEBUG)/src/main.o $(OBJDIR_DEBUG)/src/Show.o $(OBJDIR_DEBUG
 OBJ_RELEASE = $(OBJDIR_RELEASE)/src/main.o $(OBJDIR_RELEASE)/src/Show.o $(OBJDIR_RELEASE)/src/Server.o $(OBJDIR_RELEASE)/src/Report.o $(OBJDIR_RELEASE)/src/Master.o $(OBJDIR_RELEASE)/src/Learn.o $(OBJDIR_RELEASE)/src/Janitor.o $(OBJDIR_RELEASE)/src/Bot.o $(OBJDIR_RELEASE)/src/Help.o $(OBJDIR_RELEASE)/src/Forget.o $(OBJDIR_RELEASE)/src/Execute.o $(OBJDIR_RELEASE)/src/Config.o $(OBJDIR_RELEASE)/src/Commands.o $(OBJDIR_RELEASE)/src/CommandHandler.o
 
 all: debug release
+
+release: release
 
 clean: clean_debug clean_release
 

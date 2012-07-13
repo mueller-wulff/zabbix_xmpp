@@ -19,6 +19,8 @@ public:
 
     Config *config;
 
+    bool keepRunning;
+
     pid_t pidJabber;
     int statusJabber;
 

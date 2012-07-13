@@ -3,22 +3,24 @@
 namespace zabbix
 {
 
-Master::Master( Config *_config )
+Master::Master( Config *_config ) : keepRunning( true )
 {
     config = _config;
 }
 
 Master::~Master()
 {
-    kill( pidJabber, SIGHUP );
-    kill( pidServer, SIGHUP );
+    kill( pidJabber, SIGTERM );
+    kill( pidServer, SIGTERM );
+    delete Bot;
+    delete Server;
 }
 
 void Master::run()
 {
     createJabber();
     createServer();
-    while( true )
+    while( keepRunning )
     {
         pid_t testJabber = waitpid(pidJabber, &statusJabber, WNOHANG);
         pid_t testServer = waitpid(pidServer, &statusServer, WNOHANG);

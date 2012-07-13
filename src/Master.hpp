@@ -4,6 +4,9 @@
 #include "Bot.hpp"
 #include "Config.hpp"
 #include "Server.hpp"
+#include <sys/types.h>
+#include <signal.h>
+
 
 namespace zabbix
 {

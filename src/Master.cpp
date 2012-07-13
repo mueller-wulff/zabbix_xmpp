@@ -10,7 +10,8 @@ Master::Master( Config *_config )
 
 Master::~Master()
 {
-
+    kill( pidJabber, SIGHUP );
+    kill( pidServer, SIGHUP );
 }
 
 void Master::run()

@@ -7,14 +7,22 @@ LD = g++
 WINDRES = windres
 
 INC = 
+<<<<<<< HEAD
 CFLAGS =  -Wall
+=======
+CFLAGS = 
+>>>>>>> 15d5bdc91704bde76f2a6399f76a2b2995226c74
 RESINC = 
 LIBDIR = 
 LIB = 
 LDFLAGS = 
 
 INC_DEBUG =  $(INC) -I/usr/include/mongo -Isrc/base -Isrc/handler
+<<<<<<< HEAD
 CFLAGS_DEBUG =  $(CFLAGS) -g
+=======
+CFLAGS_DEBUG =  $(CFLAGS) -g -Wall
+>>>>>>> 15d5bdc91704bde76f2a6399f76a2b2995226c74
 RESINC_DEBUG =  $(RESINC)
 RCFLAGS_DEBUG =  $(RCFLAGS)
 LIBDIR_DEBUG =  $(LIBDIR)
@@ -24,7 +32,7 @@ OBJDIR_DEBUG = obj/Debug
 DEP_DEBUG = 
 OUT_DEBUG = bin/Debug/zabbix_xmpp
 
-INC_RELEASE =  $(INC) -I/usr/include/mongo/
+INC_RELEASE =  $(INC) -I/usr/include/mongo/ -Isrc/base -Isrc/handler
 CFLAGS_RELEASE =  $(CFLAGS) -O2
 RESINC_RELEASE =  $(RESINC)
 RCFLAGS_RELEASE =  $(RCFLAGS)
@@ -41,6 +49,13 @@ OBJ_RELEASE = $(OBJDIR_RELEASE)/src/handler/Execute.o $(OBJDIR_RELEASE)/src/hand
 
 all: debug release
 
+<<<<<<< HEAD
+=======
+release: release
+
+debug: debug
+
+>>>>>>> 15d5bdc91704bde76f2a6399f76a2b2995226c74
 clean: clean_debug clean_release
 
 before_debug: 

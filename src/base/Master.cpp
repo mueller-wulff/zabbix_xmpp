@@ -40,7 +40,7 @@ void Master::dropRights()
         if (setgid( config->uid ) != 0)
             printf("setgid: Unable to drop group privileges: %s", strerror(errno));
         if (setuid( config->uid ) != 0)
-            printf("setuid: Unable to drop user privileges: %S", strerror(errno));
+            printf("setuid: Unable to drop user privileges: %s", strerror(errno));
     }
 }
 
